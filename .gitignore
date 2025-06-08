@@ -1,0 +1,62 @@
+# Fichero .gitignore para el Monorepo Gentleman Barbershop
+# ---------------------------------------------------------
+
+## Ficheros de Entorno (¡MUY IMPORTANTE!)
+# Esto evita que subas contraseñas, claves de API o cualquier secreto.
+.env
+.env.local
+.env.*.local
+
+## Dependencias
+# Las carpetas node_modules se pueden reinstalar y ocupan mucho espacio.
+/barbershop-api/node_modules
+/client/node_modules
+# También podemos usar una regla global que aplica a cualquier subcarpeta.
+node_modules/
+
+## Ficheros de Build y Output
+# Código compilado que se genera automáticamente.
+/dist
+/dist-ssr
+/build
+/.temp
+/.tmp
+
+## Logs y reportes de errores
+# No necesitamos guardar los registros en el repositorio.
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+## Ficheros del Sistema Operativo
+.DS_Store
+*.sw?
+
+## Ficheros de Tests
+/coverage
+/.nyc_output
+
+## Ficheros de IDEs y editores (VSCode, Jetbrains, etc.)
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Reglas específicas para VSCode (permite compartir la configuración recomendada)
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json

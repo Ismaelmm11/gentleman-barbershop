@@ -5,6 +5,7 @@ const app_module_1 = require("./app.module");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     await app.listen(process.env.PORT ?? 3000);
+    console.log("🚀 Servidor corriendo en http://localhost:3000");
 }
 bootstrap();
 //# sourceMappingURL=main.js.map

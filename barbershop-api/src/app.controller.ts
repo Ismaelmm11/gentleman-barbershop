@@ -1,3 +1,4 @@
+// barbershop-api/src/app.controller.ts
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 
@@ -8,5 +9,12 @@ export class AppController {
   @Get()
   getHello(): string {
     return this.appService.getHello();
+  }
+
+  // Nueva ruta para nuestro chequeo de salud.
+  // Cuando alguien visite GET /health, se ejecutará este método.
+  @Get('health')
+  checkHealth() {
+    return this.appService.checkDbConnection();
   }
 }

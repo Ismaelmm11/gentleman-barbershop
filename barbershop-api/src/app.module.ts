@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module'; // Importamos nuestro módulo
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { ServicesModule } from './services/services.module';
 
 @Module({
   imports: [
@@ -14,7 +15,8 @@ import { AuthModule } from './auth/auth.module';
     ConfigModule.forRoot({ isGlobal: true }),
     DatabaseModule,
     UsersModule,
-    AuthModule, // ¡Lo añadimos aquí!
+    AuthModule,
+    ServicesModule, // ¡Lo añadimos aquí!
   ],
   controllers: [AppController],
   providers: [AppService],

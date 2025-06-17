@@ -23,7 +23,7 @@ import { UsersController } from './users.controller';
   /**
    * También existe una propiedad 'exports' que se usaría si quisiéramos
    * que el UsersService estuviera disponible para otros módulos que importen UsersModule.
-   * No lo necesitamos por ahora.
    */
+  exports: [UsersService],
 })
 export class UsersModule {}

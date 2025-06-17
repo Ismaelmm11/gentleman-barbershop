@@ -18,6 +18,7 @@ class CreateUserDto {
     fecha_nacimiento;
     username;
     password;
+    tipo_perfil;
 }
 exports.CreateUserDto = CreateUserDto;
 __decorate([
@@ -48,4 +49,9 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "password", void 0);
+__decorate([
+    (0, class_validator_1.IsEnum)(['ADMIN', 'BARBERO', 'TATUADOR', 'CLIENTE']),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], CreateUserDto.prototype, "tipo_perfil", void 0);
 //# sourceMappingURL=create-user.dto.js.map

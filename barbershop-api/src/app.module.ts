@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module'; // Importamos nuestro módulo
 import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -12,7 +13,8 @@ import { UsersModule } from './users/users.module';
     // y las hace disponibles globalmente a través de `process.env`.
     ConfigModule.forRoot({ isGlobal: true }),
     DatabaseModule,
-    UsersModule, // ¡Lo añadimos aquí!
+    UsersModule,
+    AuthModule, // ¡Lo añadimos aquí!
   ],
   controllers: [AppController],
   providers: [AppService],

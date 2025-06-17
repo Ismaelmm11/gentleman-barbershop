@@ -71,6 +71,10 @@ export interface CitaProductoTable {
     id_producto: number;
     precio_venta: number;
 }
+export interface TokenBlocklistTable {
+    jti: string;
+    fecha_expiracion: Date;
+}
 export interface VistaDiariaBarbero {
     fecha: Date;
     id_barbero: number;
@@ -92,5 +96,6 @@ export interface DB {
     pedido: PedidoTable;
     producto_pedido: ProductoPedidoTable;
     cita_producto: CitaProductoTable;
+    token_blocklist: TokenBlocklistTable;
     VISTA_DIARIA_BARBERO: VistaDiariaBarbero;
 }

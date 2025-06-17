@@ -5,6 +5,7 @@ import {
     IsPhoneNumber,
     IsDateString,
     IsOptional,
+    IsEnum,
   } from 'class-validator';
   
   // Esta clase define la "forma" de los datos que se esperan
@@ -32,5 +33,10 @@ import {
     @IsString()
     @IsOptional() // La contraseña es opcional por ahora.
     password?: string;
+
+    // Añadimos el tipo de perfil, que es obligatorio al crear un usuario.
+    @IsEnum(['ADMIN', 'BARBERO', 'TATUADOR', 'CLIENTE'])
+    @IsNotEmpty()
+    tipo_perfil: 'ADMIN' | 'BARBERO' | 'TATUADOR' | 'CLIENTE';
   }
   

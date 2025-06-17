@@ -5,4 +5,5 @@ export declare class CreateUserDto {
     fecha_nacimiento: string;
     username?: string;
     password?: string;
+    tipo_perfil: 'ADMIN' | 'BARBERO' | 'TATUADOR' | 'CLIENTE';
 }

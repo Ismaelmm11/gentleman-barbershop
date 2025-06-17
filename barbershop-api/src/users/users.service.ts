@@ -1,50 +1,166 @@
 // barbershop-api/src/users/users.service.ts
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, BadRequestException, ConflictException, UnauthorizedException } from '@nestjs/common';
 import { Kysely } from 'kysely';
 import { DB } from '../database/db.types';
 import { DATABASE_TOKEN } from '../database/database.provider';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { FindAllUsersQueryDto } from './dto/find-all-users-query.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
-  constructor(@Inject(DATABASE_TOKEN) private readonly db: Kysely<DB>) {}
+  /**
+   * El constructor inyecta la instancia de Kysely (nuestra conexión a la BD)
+   * que hemos configurado y hecho disponible globalmente en el DatabaseModule.
+   */
+  constructor(@Inject(DATABASE_TOKEN) private readonly db: Kysely<DB>) { }
 
   /**
-   * Crea un nuevo usuario en la base de datos.
+   * Crea un nuevo usuario y su perfil asociado dentro de una transacción.
+   * Esto asegura que ambas operaciones se completen con éxito, o ninguna lo haga.
    */
-  async create(createUserDto: CreateUserDto) {
-    const { fecha_nacimiento, ...restOfDto } = createUserDto;
+  async create(
+    createUserDto: CreateUserDto,
+    creator?: { userId: number; rol: string },
+  ) {
+    // Separamos los datos del perfil de los datos del usuario.
+    const { tipo_perfil, username, password, fecha_nacimiento, ...restOfUserData } = createUserDto;
 
-    // --- CORRECCIÓN ---
-    // MySQL no soporta .returning(). Haremos un proceso de dos pasos.
-    // 1. Insertar el usuario.
-    const result = await this.db
-      .insertInto('usuario')
-      .values({
-        ...restOfDto,
-        fecha_nacimiento: new Date(fecha_nacimiento),
-      })
-      .executeTakeFirstOrThrow();
+    if(tipo_perfil === 'ADMIN'){
+      throw new BadRequestException(
+        'No es posible crear nuevos administradores.',
+      );
+    }
+    // REGLA DE ORO: Si el que crea NO es un ADMIN y está intentando crear un usuario
+    // que NO sea CLIENTE, se le deniega el acceso.
+    if (tipo_perfil !== 'CLIENTE' && (!creator || creator.rol !== 'ADMIN')) {
+      throw new UnauthorizedException(
+        'No tienes permisos para crear este tipo de usuario.',
+      );
+    }
 
-    // El objeto 'result' contiene el ID del usuario recién insertado.
-    // Kysely lo devuelve como un BigInt, lo convertimos a número.
-    const newUserId = Number(result.insertId);
+    // Regla 1: Si el perfil es CLIENTE, no puede tener username ni password.
+    if (tipo_perfil === 'CLIENTE' && (username || password)) {
+      throw new BadRequestException(
+        'Los clientes no pueden tener username o password.',
+      );
+    }
+    // Regla 2: Si el perfil NO es CLIENTE, el username y password son obligatorios.
+    if (tipo_perfil !== 'CLIENTE' && (!username || !password)) {
+      throw new BadRequestException(
+        'El username y la password son obligatorios para este tipo de perfil.',
+      );
+    }
 
-    // 2. Usar ese ID para buscar y devolver el usuario completo.
-    // ¡Reutilizamos nuestro propio método findOne que ya hace esto!
+    // Si se proporciona un username, verificamos si ya existe en la base de datos.
+    if (username) {
+      const existingUser = await this.findOneByUsername(username);
+      if (existingUser) {
+        // Lanza un error 409 Conflict si el username ya está en uso.
+        throw new ConflictException(`El nombre de usuario '${username}' ya está en uso.`);
+      }
+    }
+
+    //Declaramos explícitamente que la variable puede ser string O null.
+    let hashedPassword: string | null = null;
+    // Solo hasheamos la contraseña si se proporciona una.
+    if (password) {
+      // El '10' es el "costo" o "salt rounds". Es un buen valor por defecto.
+      // Un número más alto es más seguro pero más lento.
+      hashedPassword = await bcrypt.hash(password, 10);
+    }
+
+    // Kysely nos ofrece una forma muy elegante de manejar transacciones.
+    const newUserId = await this.db.transaction().execute(async (trx) => {
+      // 1. Insertar el usuario usando el objeto de transacción 'trx'.
+      const userResult = await trx
+        .insertInto('usuario')
+        .values({
+          ...restOfUserData,
+          username,
+          fecha_nacimiento: new Date(fecha_nacimiento),
+          password: hashedPassword,
+        })
+        .executeTakeFirstOrThrow();
+
+      const userId = Number(userResult.insertId);
+
+      // 2. Insertar el perfil asociado usando el ID del usuario recién creado.
+      await trx
+        .insertInto('perfil')
+        .values({
+          id_usuario: userId,
+          tipo: tipo_perfil,
+        })
+        .execute();
+
+      // Si todo va bien, la transacción devuelve el ID del nuevo usuario.
+      return userId;
+    });
+
     return this.findOne(newUserId);
   }
 
   /**
-   * Devuelve una lista de todos los usuarios.
+   * Devuelve una lista paginada y filtrada de usuarios.
+   * @param queryParams Los parámetros de la URL para filtrar y paginar.
+   * @returns Un objeto con los datos, el total de resultados y la información de paginación.
    */
-  async findAll() {
-    const users = await this.db.selectFrom('usuario').selectAll().execute();
-    return users.map(user => {
+  async findAll(queryParams: FindAllUsersQueryDto) {
+    // Asignamos valores por defecto a los parámetros de paginación si no se proporcionan.
+    const { limit = 10, page = 1, nombre } = queryParams;
+    const offset = (page - 1) * limit;
+
+    // ----- Construcción de Consultas Dinámicas -----
+    // Usamos 'let' para poder modificar la consulta base añadiendo filtros.
+
+    // Consulta para obtener los datos paginados
+    let dataQuery = this.db.selectFrom('usuario').selectAll();
+
+    // CORRECCIÓN: Usamos el Expression Builder (eb) de Kysely para construir
+    // la función de conteo de forma segura y tipada.
+    let countQuery = this.db
+      .selectFrom('usuario')
+      .select((eb) => eb.fn.countAll().as('total'));
+
+    // Si se proporciona un filtro 'nombre', lo añadimos a AMBAS consultas.
+    // Esto es crucial para que el conteo total refleje los resultados filtrados.
+    if (nombre) {
+      const filter = `%${nombre}%`; // El '%' es un comodín para la cláusula LIKE de SQL.
+      dataQuery = dataQuery.where('nombre', 'like', filter);
+      countQuery = countQuery.where('nombre', 'like', filter);
+    }
+
+    // Ejecutamos ambas consultas en paralelo para mayor eficiencia usando Promise.all.
+    const [users, countResult] = await Promise.all([
+      dataQuery.limit(limit).offset(offset).execute(), // Aplicamos paginación solo a la consulta de datos.
+      countQuery.executeTakeFirstOrThrow(),
+    ]);
+
+    // Por seguridad, eliminamos la contraseña de cada usuario antes de devolver los datos.
+    const sanitizedUsers = users.map(user => {
       const { password, ...userWithoutPassword } = user;
       return userWithoutPassword;
     });
+
+    // El resultado del conteo (`countAll`) viene como un BigInt.
+    // Lo convertimos a número para poder usarlo en cálculos como Math.ceil.
+    const total = Number(countResult.total);
+
+    // Devolvemos un objeto de respuesta estándar para paginación.
+    // Esto le da al frontend toda la información que necesita para renderizar los controles de paginación.
+    return {
+      data: sanitizedUsers,
+      meta: {
+        total: total,
+        page,
+        limit,
+        last_page: Math.ceil(total / limit),
+      }
+    };
   }
 
   /**
@@ -57,39 +173,115 @@ export class UsersService {
       .where('id', '=', id)
       .executeTakeFirst();
 
+    // Si no se encuentra ningún usuario, lanzamos un error 404 estándar de NestJS.
     if (!user) {
       throw new NotFoundException(`Usuario con ID ${id} no encontrado.`);
     }
 
+    // Eliminamos la contraseña del objeto antes de devolverlo.
     const { password, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }
 
+  async findOneByUsername(username: string) {
+    // Este método devuelve el usuario CON su contraseña y con su rol,
+    // porque el AuthService la necesita para comparar.
+    // Es un método "interno" y no se expondrá en una ruta pública.
+    return this.db
+      .selectFrom('usuario')
+      .innerJoin('perfil', 'perfil.id_usuario', 'usuario.id') // Unimos con la tabla perfil.
+      .selectAll('usuario') // Seleccionamos todas las columnas de la tabla usuario.
+      .select('perfil.tipo as rol') // Y seleccionamos la columna 'tipo' de perfil, renombrándola a 'rol'.
+      .where('username', '=', username)
+      .executeTakeFirst();
+  }
+
   /**
    * Actualiza los datos de un usuario.
+   * Sigue un patrón de 2 pasos compatible con MySQL.
    */
   async update(id: number, updateUserDto: UpdateUserDto) {
-    const { fecha_nacimiento, ...restOfDto } = updateUserDto;
+    const { fecha_nacimiento, password, ...restOfDto } = updateUserDto;
     const dataToUpdate: any = { ...restOfDto };
+
+    // Si la fecha de nacimiento viene en la petición, la convertimos a objeto Date.
     if (fecha_nacimiento) {
       dataToUpdate.fecha_nacimiento = new Date(fecha_nacimiento);
     }
-    
-    // --- CORRECCIÓN ---
-    // Tampoco podemos usar .returning() en el update.
-    // 1. Actualizar la tabla.
+
+    if (password) {
+      throw new BadRequestException('Para cambiar la contraseña, por favor use la ruta específica.');
+    }
+
+
+    // 1. Ejecutamos la actualización.
     await this.db
       .updateTable('usuario')
       .set(dataToUpdate)
       .where('id', '=', id)
       .executeTakeFirst();
-    
-    // 2. Buscar y devolver el usuario con los datos ya actualizados.
+
+    // 2. Buscamos y devolvemos el usuario con los datos ya actualizados.
     return this.findOne(id);
   }
 
   /**
-   * Elimina un usuario de la base de datos.
+   * Cambia la contraseña de un usuario autenticado.
+   * @param userId El ID del usuario (obtenido del token).
+   * @param changePasswordDto Objeto con la contraseña antigua y la nueva.
+   */
+  async changePassword(userId: number, changePasswordDto: ChangePasswordDto) {
+    // 1. Buscamos al usuario completo, incluyendo su contraseña actual.
+    const user = await this.db.selectFrom('usuario').selectAll().where('id', '=', userId).executeTakeFirst();
+
+    if (!user || !user.password) {
+      throw new UnauthorizedException('El usuario no puede cambiar la contraseña.');
+    }
+
+    // 2. Comparamos la "contraseña antigua" proporcionada con la que hay en la BD.
+    const isOldPasswordCorrect = await bcrypt.compare(changePasswordDto.oldPassword, user.password);
+
+    if (!isOldPasswordCorrect) {
+      throw new UnauthorizedException('La contraseña antigua es incorrecta.');
+    }
+
+    // 3. Hasheamos la nueva contraseña.
+    const newHashedPassword = await bcrypt.hash(changePasswordDto.newPassword, 10);
+
+    // 4. Actualizamos la BD con la nueva contraseña hasheada.
+    await this.db
+      .updateTable('usuario')
+      .set({ password: newHashedPassword })
+      .where('id', '=', userId)
+      .execute();
+
+    return { message: 'Contraseña actualizada correctamente.' };
+  }
+
+  /**
+   * Actualiza el perfil (rol) de un usuario específico.
+   * @param userId El ID del usuario a modificar.
+   * @param updateProfileDto El nuevo perfil a asignar.
+   */
+  async updateProfile(userId: number, updateProfileDto: UpdateProfileDto) {
+    // Buscamos el perfil del usuario para asegurarnos de que existe antes de actualizar.
+    const profile = await this.db.selectFrom('perfil').selectAll().where('id_usuario', '=', userId).executeTakeFirst();
+
+    if (!profile) {
+      throw new NotFoundException(`No se encontró un perfil para el usuario con ID ${userId}.`);
+    }
+
+    await this.db
+      .updateTable('perfil')
+      .set({ tipo: updateProfileDto.tipo_perfil })
+      .where('id_usuario', '=', userId)
+      .execute();
+
+    return { message: `Perfil del usuario con ID ${userId} actualizado a ${updateProfileDto.tipo_perfil}.` };
+  }
+
+  /**
+   * Elimina un usuario de la base de datos por su ID.
    */
   async remove(id: number) {
     const result = await this.db
@@ -97,10 +289,12 @@ export class UsersService {
       .where('id', '=', id)
       .executeTakeFirst();
 
+    // La consulta de borrado devuelve el número de filas afectadas.
+    // Si es 0, significa que no se encontró un usuario con ese ID.
     if (result.numDeletedRows === 0n) {
       throw new NotFoundException(`No se pudo eliminar. Usuario con ID ${id} no encontrado.`);
     }
-    
+
     return { message: `Usuario con ID ${id} eliminado correctamente.` };
   }
 }

@@ -102,6 +102,13 @@ export interface CitaProductoTable {
   precio_venta: number;
 }
 
+// --- Tabla Auxiliar para limpiar los JWT ---
+
+export interface TokenBlocklistTable {
+  jti: string;
+  fecha_expiracion: Date;
+}
+
 // --- Tipos para las Vistas ---
 
 export interface VistaDiariaBarbero {
@@ -132,6 +139,7 @@ export interface DB {
   pedido: PedidoTable;
   producto_pedido: ProductoPedidoTable;
   cita_producto: CitaProductoTable;
+  token_blocklist: TokenBlocklistTable;
 
   // Vistas
   VISTA_DIARIA_BARBERO: VistaDiariaBarbero;

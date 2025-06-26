@@ -7,6 +7,7 @@ import { DatabaseModule } from './database/database.module'; // Importamos nuest
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ServicesModule } from './services/services.module';
+import { AppointmentsModule } from './appointments/appointments.module';
 
 @Module({
   imports: [
@@ -16,7 +17,8 @@ import { ServicesModule } from './services/services.module';
     DatabaseModule,
     UsersModule,
     AuthModule,
-    ServicesModule, // ¡Lo añadimos aquí!
+    ServicesModule,
+    AppointmentsModule, // ¡Lo añadimos aquí!
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -6,29 +6,29 @@ export declare class ServicesService {
     private readonly db;
     constructor(db: Kysely<DB>);
     create(createServiceDto: CreateServiceDto): Promise<{
-        nombre: string;
         id: number;
+        nombre: string;
         descripcion: string;
         duracion_minutos: number;
         precio_base: number;
     }>;
     findAll(): Promise<{
-        nombre: string;
         id: number;
+        nombre: string;
         descripcion: string;
         duracion_minutos: number;
         precio_base: number;
     }[]>;
     findOne(id: number): Promise<{
-        nombre: string;
         id: number;
+        nombre: string;
         descripcion: string;
         duracion_minutos: number;
         precio_base: number;
     }>;
     update(id: number, updateServiceDto: UpdateServiceDto): Promise<{
-        nombre: string;
         id: number;
+        nombre: string;
         descripcion: string;
         duracion_minutos: number;
         precio_base: number;

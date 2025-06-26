@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateServiceDto = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
+const is_multiple_of_decorator_1 = require("../../common/decorators/is-multiple-of.decorator");
 class CreateServiceDto {
     nombre;
     descripcion;
@@ -32,7 +33,7 @@ __decorate([
 __decorate([
     (0, class_validator_1.IsInt)({ message: 'La duración debe ser un número entero de minutos.' }),
     (0, class_validator_1.IsPositive)(),
-    (0, class_transformer_1.Type)(() => Number),
+    (0, is_multiple_of_decorator_1.IsMultipleOf)(5),
     __metadata("design:type", Number)
 ], CreateServiceDto.prototype, "duracion_minutos", void 0);
 __decorate([

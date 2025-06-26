@@ -5,29 +5,29 @@ export declare class ServicesController {
     private readonly servicesService;
     constructor(servicesService: ServicesService);
     create(createServiceDto: CreateServiceDto): Promise<{
-        nombre: string;
         id: number;
+        nombre: string;
         descripcion: string;
         duracion_minutos: number;
         precio_base: number;
     }>;
     findAll(): Promise<{
-        nombre: string;
         id: number;
+        nombre: string;
         descripcion: string;
         duracion_minutos: number;
         precio_base: number;
     }[]>;
     findOne(id: string): Promise<{
-        nombre: string;
         id: number;
+        nombre: string;
         descripcion: string;
         duracion_minutos: number;
         precio_base: number;
     }>;
     update(id: string, updateServiceDto: UpdateServiceDto): Promise<{
-        nombre: string;
         id: number;
+        nombre: string;
         descripcion: string;
         duracion_minutos: number;
         precio_base: number;

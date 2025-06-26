@@ -1,6 +1,7 @@
 // barbershop-api/src/services/dto/create-service.dto.ts
 import { IsString, IsNotEmpty, IsNumber, IsPositive, IsInt } from 'class-validator';
 import { Type } from 'class-transformer';
+import { IsMultipleOf } from '../../common/decorators/is-multiple-of.decorator';
 
 export class CreateServiceDto {
   /**
@@ -23,7 +24,7 @@ export class CreateServiceDto {
    */
   @IsInt({ message: 'La duración debe ser un número entero de minutos.' })
   @IsPositive()
-  @Type(() => Number)
+  @IsMultipleOf(5) 
   duracion_minutos: number;
 
   /**

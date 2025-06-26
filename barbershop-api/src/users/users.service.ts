@@ -169,16 +169,17 @@ export class UsersService {
   async findOne(id: number) {
     const user = await this.db
       .selectFrom('usuario')
-      .selectAll()
-      .where('id', '=', id)
+      .innerJoin('perfil', 'perfil.id_usuario', 'usuario.id')
+      .selectAll('usuario')
+      .select(['perfil.tipo as rol']) // Añadimos el rol al resultado
+      .where('usuario.id', '=', id) // Especificamos la tabla para evitar ambigüedad en el 'id'
       .executeTakeFirst();
 
-    // Si no se encuentra ningún usuario, lanzamos un error 404 estándar de NestJS.
     if (!user) {
       throw new NotFoundException(`Usuario con ID ${id} no encontrado.`);
     }
 
-    // Eliminamos la contraseña del objeto antes de devolverlo.
+    // Como siempre, eliminamos la contraseña antes de devolver el objeto.
     const { password, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }

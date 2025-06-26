@@ -12,21 +12,22 @@ export declare class UsersService {
         userId: number;
         rol: string;
     }): Promise<{
+        id: number;
         nombre: string;
         apellidos: string;
+        username: string | null;
         telefono: string;
         fecha_nacimiento: Date;
-        username: string | null;
-        id: number;
+        rol: "ADMIN" | "BARBERO" | "TATUADOR" | "CLIENTE";
     }>;
     findAll(queryParams: FindAllUsersQueryDto): Promise<{
         data: {
+            id: number;
             nombre: string;
             apellidos: string;
+            username: string | null;
             telefono: string;
             fecha_nacimiento: Date;
-            username: string | null;
-            id: number;
         }[];
         meta: {
             total: number;
@@ -36,30 +37,32 @@ export declare class UsersService {
         };
     }>;
     findOne(id: number): Promise<{
+        id: number;
         nombre: string;
         apellidos: string;
+        username: string | null;
         telefono: string;
         fecha_nacimiento: Date;
-        username: string | null;
-        id: number;
+        rol: "ADMIN" | "BARBERO" | "TATUADOR" | "CLIENTE";
     }>;
     findOneByUsername(username: string): Promise<{
-        password: string | null;
+        id: number;
         nombre: string;
         apellidos: string;
+        username: string | null;
+        password: string | null;
         telefono: string;
         fecha_nacimiento: Date;
-        username: string | null;
-        id: number;
         rol: "ADMIN" | "BARBERO" | "TATUADOR" | "CLIENTE";
     } | undefined>;
     update(id: number, updateUserDto: UpdateUserDto): Promise<{
+        id: number;
         nombre: string;
         apellidos: string;
+        username: string | null;
         telefono: string;
         fecha_nacimiento: Date;
-        username: string | null;
-        id: number;
+        rol: "ADMIN" | "BARBERO" | "TATUADOR" | "CLIENTE";
     }>;
     changePassword(userId: number, changePasswordDto: ChangePasswordDto): Promise<{
         message: string;

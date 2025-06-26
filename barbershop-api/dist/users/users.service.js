@@ -102,8 +102,10 @@ let UsersService = class UsersService {
     async findOne(id) {
         const user = await this.db
             .selectFrom('usuario')
-            .selectAll()
-            .where('id', '=', id)
+            .innerJoin('perfil', 'perfil.id_usuario', 'usuario.id')
+            .selectAll('usuario')
+            .select(['perfil.tipo as rol'])
+            .where('usuario.id', '=', id)
             .executeTakeFirst();
         if (!user) {
             throw new common_1.NotFoundException(`Usuario con ID ${id} no encontrado.`);

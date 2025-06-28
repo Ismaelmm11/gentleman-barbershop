@@ -2,6 +2,8 @@
 import { Module } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
+import { RecurringBlocksModule } from '../recurring-blocks/recurring-blocks.module';
+  
 
 /**
  * El decorador @Module() define la clase como un módulo de NestJS.
@@ -9,6 +11,12 @@ import { UsersController } from './users.controller';
  * Agrupan un conjunto de funcionalidades relacionadas.
  */
 @Module({
+  /**
+   * Importamos el RecurringBlocksModule para que los proveedores de este
+   * módulo (en este caso, UsersService) puedan inyectar y utilizar
+   * los servicios exportados por RecurringBlocksModule.
+   */
+  imports: [RecurringBlocksModule],
   /**
    * La propiedad 'controllers' registra todos los controladores
    * que pertenecen a este módulo. En este caso, solo UsersController.

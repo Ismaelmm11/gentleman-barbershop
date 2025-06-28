@@ -17,6 +17,9 @@ const common_1 = require("@nestjs/common");
 const appointments_service_1 = require("./appointments.service");
 const create_appointment_dto_1 = require("./dto/create-appointment.dto");
 const update_appointment_dto_1 = require("./dto/update-appointment.dto");
+const request_returning_appointment_dto_1 = require("./dto/request-returning-appointment.dto");
+const request_new_appointment_dto_1 = require("./dto/request-new-appointment.dto");
+const confirm_appointment_dto_1 = require("./dto/confirm-appointment.dto");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("../auth/guards/roles.guard");
 const public_decorator_1 = require("../auth/decorators/public.decorator");
@@ -27,8 +30,17 @@ let AppointmentsController = class AppointmentsController {
     constructor(appointmentsService) {
         this.appointmentsService = appointmentsService;
     }
-    create(createAppointmentDto, creator) {
-        return this.appointmentsService.create(createAppointmentDto, creator);
+    requestForReturningClient(requestDto) {
+        return this.appointmentsService.requestForReturningClient(requestDto);
+    }
+    requestForNewClient(requestDto) {
+        return this.appointmentsService.requestForNewClient(requestDto);
+    }
+    confirmAppointment(confirmDto) {
+        return this.appointmentsService.confirmAppointment(confirmDto);
+    }
+    createInternal(creator, createAppointmentDto) {
+        return this.appointmentsService.createInternal(creator.userId, createAppointmentDto);
     }
     findAll() {
         return this.appointmentsService.findAll();
@@ -46,13 +58,40 @@ let AppointmentsController = class AppointmentsController {
 exports.AppointmentsController = AppointmentsController;
 __decorate([
     (0, public_decorator_1.Public)(),
-    (0, common_1.Post)(),
+    (0, common_1.Post)('request-returning'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     __param(0, (0, common_1.Body)()),
-    __param(1, (0, get_user_decorator_1.GetUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_appointment_dto_1.CreateAppointmentDto, Object]),
+    __metadata("design:paramtypes", [request_returning_appointment_dto_1.RequestReturningAppointmentDto]),
     __metadata("design:returntype", void 0)
-], AppointmentsController.prototype, "create", null);
+], AppointmentsController.prototype, "requestForReturningClient", null);
+__decorate([
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Post)('request-new'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [request_new_appointment_dto_1.RequestNewAppointmentDto]),
+    __metadata("design:returntype", void 0)
+], AppointmentsController.prototype, "requestForNewClient", null);
+__decorate([
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Post)('confirm'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [confirm_appointment_dto_1.ConfirmAppointmentDto]),
+    __metadata("design:returntype", void 0)
+], AppointmentsController.prototype, "confirmAppointment", null);
+__decorate([
+    (0, common_1.Post)('internal'),
+    (0, roles_decorator_1.Roles)('ADMIN', 'BARBERO', 'TATUADOR'),
+    __param(0, (0, get_user_decorator_1.GetUser)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, create_appointment_dto_1.CreateAppointmentDto]),
+    __metadata("design:returntype", void 0)
+], AppointmentsController.prototype, "createInternal", null);
 __decorate([
     (0, common_1.Get)(),
     (0, roles_decorator_1.Roles)('ADMIN', 'BARBERO'),

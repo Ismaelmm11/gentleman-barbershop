@@ -11,12 +11,12 @@ export declare class UsersController {
         userId: number;
         rol: string;
     }): Promise<{
-        id: number;
         nombre: string;
         apellidos: string;
-        username: string | null;
         telefono: string;
         fecha_nacimiento: Date;
+        username: string | null;
+        id: number;
         rol: "ADMIN" | "BARBERO" | "TATUADOR" | "CLIENTE";
     }>;
     changePassword(user: {
@@ -29,12 +29,12 @@ export declare class UsersController {
     }>;
     findAll(findAllUsersQueryDto: FindAllUsersQueryDto): Promise<{
         data: {
-            id: number;
             nombre: string;
             apellidos: string;
-            username: string | null;
             telefono: string;
             fecha_nacimiento: Date;
+            username: string | null;
+            id: number;
         }[];
         meta: {
             total: number;
@@ -44,21 +44,21 @@ export declare class UsersController {
         };
     }>;
     findOne(id: string): Promise<{
-        id: number;
         nombre: string;
         apellidos: string;
-        username: string | null;
         telefono: string;
         fecha_nacimiento: Date;
+        username: string | null;
+        id: number;
         rol: "ADMIN" | "BARBERO" | "TATUADOR" | "CLIENTE";
     }>;
     update(id: string, updateUserDto: UpdateUserDto): Promise<{
-        id: number;
         nombre: string;
         apellidos: string;
-        username: string | null;
         telefono: string;
         fecha_nacimiento: Date;
+        username: string | null;
+        id: number;
         rol: "ADMIN" | "BARBERO" | "TATUADOR" | "CLIENTE";
     }>;
     remove(id: string): Promise<{

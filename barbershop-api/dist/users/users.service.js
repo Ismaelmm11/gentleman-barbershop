@@ -16,11 +16,14 @@ exports.UsersService = void 0;
 const common_1 = require("@nestjs/common");
 const kysely_1 = require("kysely");
 const database_provider_1 = require("../database/database.provider");
+const recurring_blocks_service_1 = require("../recurring-blocks/recurring-blocks.service");
 const bcrypt = require("bcrypt");
 let UsersService = class UsersService {
     db;
-    constructor(db) {
+    recurringBlocksService;
+    constructor(db, recurringBlocksService) {
         this.db = db;
+        this.recurringBlocksService = recurringBlocksService;
     }
     async create(createUserDto, creator) {
         const { tipo_perfil, username, password, fecha_nacimiento, ...restOfUserData } = createUserDto;
@@ -66,6 +69,20 @@ let UsersService = class UsersService {
                 .execute();
             return userId;
         });
+        if (['BARBERO', 'TATUADOR'].includes(tipo_perfil)) {
+            await this.recurringBlocksService.create(newUserId, {
+                dias_semana: [1],
+                hora_inicio: '06:00',
+                hora_fin: '23:59',
+                titulo: 'Descanso por defecto',
+            });
+            await this.recurringBlocksService.create(newUserId, {
+                dias_semana: [7],
+                hora_inicio: '06:00',
+                hora_fin: '23:59',
+                titulo: 'Descanso por defecto',
+            });
+        }
         return this.findOne(newUserId);
     }
     async findAll(queryParams) {
@@ -122,6 +139,13 @@ let UsersService = class UsersService {
             .where('username', '=', username)
             .executeTakeFirst();
     }
+    async findOneByPhone(phone) {
+        return this.db
+            .selectFrom('usuario')
+            .selectAll()
+            .where('telefono', '=', phone)
+            .executeTakeFirst();
+    }
     async update(id, updateUserDto) {
         const { fecha_nacimiento, password, ...restOfDto } = updateUserDto;
         const dataToUpdate = { ...restOfDto };
@@ -137,23 +161,6 @@ let UsersService = class UsersService {
             .where('id', '=', id)
             .executeTakeFirst();
         return this.findOne(id);
-    }
-    async changePassword(userId, changePasswordDto) {
-        const user = await this.db.selectFrom('usuario').selectAll().where('id', '=', userId).executeTakeFirst();
-        if (!user || !user.password) {
-            throw new common_1.UnauthorizedException('El usuario no puede cambiar la contraseña.');
-        }
-        const isOldPasswordCorrect = await bcrypt.compare(changePasswordDto.oldPassword, user.password);
-        if (!isOldPasswordCorrect) {
-            throw new common_1.UnauthorizedException('La contraseña antigua es incorrecta.');
-        }
-        const newHashedPassword = await bcrypt.hash(changePasswordDto.newPassword, 10);
-        await this.db
-            .updateTable('usuario')
-            .set({ password: newHashedPassword })
-            .where('id', '=', userId)
-            .execute();
-        return { message: 'Contraseña actualizada correctamente.' };
     }
     async updateProfile(userId, updateProfileDto) {
         const profile = await this.db.selectFrom('perfil').selectAll().where('id_usuario', '=', userId).executeTakeFirst();
@@ -177,11 +184,65 @@ let UsersService = class UsersService {
         }
         return { message: `Usuario con ID ${id} eliminado correctamente.` };
     }
+    async findOrCreateClient(clientData, trx = this.db) {
+        const existingUser = await trx
+            .selectFrom('usuario')
+            .selectAll()
+            .where('telefono', '=', clientData.telefono)
+            .executeTakeFirst();
+        if (existingUser) {
+            return existingUser;
+        }
+        return this.db.transaction().execute(async (innerTrx) => {
+            const newUserResult = await innerTrx
+                .insertInto('usuario')
+                .values({
+                nombre: clientData.nombre,
+                apellidos: clientData.apellidos,
+                telefono: clientData.telefono,
+                fecha_nacimiento: new Date(clientData.fecha_nacimiento),
+                username: null,
+                password: null,
+            })
+                .executeTakeFirstOrThrow();
+            const newUserId = Number(newUserResult.insertId);
+            await innerTrx
+                .insertInto('perfil')
+                .values({
+                id_usuario: newUserId,
+                tipo: 'CLIENTE',
+            })
+                .execute();
+            return trx
+                .selectFrom('usuario')
+                .selectAll()
+                .where('id', '=', newUserId)
+                .executeTakeFirstOrThrow();
+        });
+    }
+    async changePassword(userId, changePasswordDto) {
+        const user = await this.db.selectFrom('usuario').selectAll().where('id', '=', userId).executeTakeFirst();
+        if (!user || !user.password) {
+            throw new common_1.UnauthorizedException('El usuario no puede cambiar la contraseña.');
+        }
+        const isOldPasswordCorrect = await bcrypt.compare(changePasswordDto.oldPassword, user.password);
+        if (!isOldPasswordCorrect) {
+            throw new common_1.UnauthorizedException('La contraseña antigua es incorrecta.');
+        }
+        const newHashedPassword = await bcrypt.hash(changePasswordDto.newPassword, 10);
+        await this.db
+            .updateTable('usuario')
+            .set({ password: newHashedPassword })
+            .where('id', '=', userId)
+            .execute();
+        return { message: 'Contraseña actualizada correctamente.' };
+    }
 };
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, common_1.Inject)(database_provider_1.DATABASE_TOKEN)),
-    __metadata("design:paramtypes", [kysely_1.Kysely])
+    __metadata("design:paramtypes", [kysely_1.Kysely,
+        recurring_blocks_service_1.RecurringBlocksService])
 ], UsersService);
 //# sourceMappingURL=users.service.js.map

@@ -24,11 +24,11 @@ export class ServicesController {
    * Endpoint para crear un nuevo servicio.
    * @Post() - Mapea las peticiones HTTP POST a '/services'.
    * @Roles('ADMIN', 'BARBERO') - Define los roles permitidos para esta ruta. Solo los usuarios
-   * con rol 'ADMIN' o 'BARBERO' podrán crear servicios.
+   * con rol 'ADMIN'
    * @Body() - Extrae el cuerpo de la petición y lo valida usando el CreateServiceDto.
    */
   @Post()
-  @Roles('ADMIN', 'BARBERO')
+  @Roles('ADMIN')
   create(@Body() createServiceDto: CreateServiceDto) {
     return this.servicesService.create(createServiceDto);
   }
@@ -64,7 +64,7 @@ export class ServicesController {
    * @Body() - Extrae los datos a actualizar del cuerpo de la petición.
    */
   @Patch(':id')
-  @Roles('ADMIN', 'BARBERO')
+  @Roles('ADMIN')
   update(@Param('id') id: string, @Body() updateServiceDto: UpdateServiceDto) {
     return this.servicesService.update(+id, updateServiceDto);
   }
@@ -75,7 +75,7 @@ export class ServicesController {
    * @Roles('ADMIN', 'BARBERO') - Solo los 'ADMIN' y 'BARBERO' pueden eliminar servicios.
    */
   @Delete(':id')
-  @Roles('ADMIN', 'BARBERO')
+  @Roles('ADMIN')
   remove(@Param('id') id: string) {
     return this.servicesService.remove(+id);
   }

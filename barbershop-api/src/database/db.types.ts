@@ -45,7 +45,7 @@ export interface CitaTable {
   fecha_hora_inicio: Date;
   fecha_hora_fin: Date;
   precio_final: number | null; // Puede ser nulo para un 'DESCANSO' o 'CANCELADO'
-  estado: 'PENDIENTE' | 'CERRADO' | 'CANCELADO' | 'DESCANSO';
+  estado: 'PENDIENTE_CONFIRMACION' | 'PENDIENTE' | 'CERRADO' | 'CANCELADO' | 'DESCANSO';
 }
 
 
@@ -109,6 +109,27 @@ export interface TokenBlocklistTable {
   fecha_expiracion: Date;
 }
 
+// --- Tabla Descansos Recurrentes barberos ---
+
+export interface HorarioBloqueadoRecurrenteTable {
+  id: Generated<number>;
+  id_usuario: number;
+  dia_semana: number;
+  hora_inicio: string; // Se trata como HH:MM en la lógica de la aplicación
+  hora_fin: string;   // Se trata como HH:MM en la lógica de la aplicación
+  titulo: string | null;
+}
+
+// --- Tabla para manejar los códigos de verificación ---
+export interface OtpCodesTable {
+  id: Generated<number>;
+  id_cita_provisional: number;
+  codigo: string;
+  fecha_expiracion: Date;
+  intentos: Generated<number>;
+  datos_cliente_json: string | null;
+}
+
 // --- Tipos para las Vistas ---
 
 export interface VistaDiariaBarbero {
@@ -140,6 +161,8 @@ export interface DB {
   producto_pedido: ProductoPedidoTable;
   cita_producto: CitaProductoTable;
   token_blocklist: TokenBlocklistTable;
+  horario_bloqueado_recurrente: HorarioBloqueadoRecurrenteTable;
+  otp_codes: OtpCodesTable;
 
   // Vistas
   VISTA_DIARIA_BARBERO: VistaDiariaBarbero;

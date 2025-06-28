@@ -18,69 +18,174 @@ const kysely_1 = require("kysely");
 const database_provider_1 = require("../database/database.provider");
 const services_service_1 = require("../services/services.service");
 const users_service_1 = require("../users/users.service");
+const recurring_blocks_service_1 = require("../recurring-blocks/recurring-blocks.service");
+const messaging_service_1 = require("../messaging/messaging.service");
+const crypto_1 = require("crypto");
 let AppointmentsService = class AppointmentsService {
     db;
     servicesService;
     usersService;
-    constructor(db, servicesService, usersService) {
+    recurringBlocksService;
+    messagingService;
+    constructor(db, servicesService, usersService, recurringBlocksService, messagingService) {
         this.db = db;
         this.servicesService = servicesService;
         this.usersService = usersService;
+        this.recurringBlocksService = recurringBlocksService;
+        this.messagingService = messagingService;
     }
-    async create(createAppointmentDto, creator) {
-        await this.validateAppointmentCreation(createAppointmentDto, creator);
-        const fecha_hora_fin = await this.calculateEndTime(createAppointmentDto);
-        const dataToInsert = this.prepareAppointmentData(createAppointmentDto, fecha_hora_fin);
-        const result = await this.db.insertInto('cita').values(dataToInsert).executeTakeFirstOrThrow();
-        const newAppointmentId = Number(result.insertId);
-        return this.findOne(newAppointmentId);
+    async createInternal(creatorId, createDto) {
+        await this.validateEntities(createDto);
+        const { endTime, finalPrice } = await this.calculatePriceAndDurationForStaff(createDto);
+        const result = await this.db
+            .insertInto('cita')
+            .values({
+            id_barbero: createDto.id_barbero,
+            id_cliente: createDto.id_cliente,
+            id_servicio: createDto.id_servicio,
+            estado: createDto.estado,
+            fecha_hora_inicio: new Date(createDto.fecha_hora_inicio),
+            fecha_hora_fin: endTime,
+            precio_final: finalPrice,
+        })
+            .executeTakeFirstOrThrow();
+        return this.findOne(Number(result.insertId));
     }
-    async validateAppointmentCreation(dto, creator) {
+    async requestForReturningClient(requestDto) {
+        const user = await this.usersService.findOneByPhone(requestDto.telefono_cliente);
+        if (!user) {
+            throw new common_1.NotFoundException('No se ha encontrado ningún cliente con ese número de teléfono. Por favor, regístrese usando el formulario para nuevos clientes.');
+        }
+        return this.createProvisionalAppointmentAndSendOtp(user.id, requestDto);
+    }
+    async requestForNewClient(requestDto) {
+        const existingUser = await this.usersService.findOneByPhone(requestDto.telefono_cliente);
+        if (existingUser) {
+            throw new common_1.ConflictException('El número de teléfono ya está en uso. Por favor, utilice el formulario para clientes existentes.');
+        }
+        return this.createProvisionalAppointmentAndSendOtp(null, requestDto);
+    }
+    async confirmAppointment(confirmDto) {
+        const { id_cita_provisional, codigo } = confirmDto;
+        return this.db.transaction().execute(async (trx) => {
+            const otpRecord = await trx.selectFrom('otp_codes').selectAll().where('id_cita_provisional', '=', id_cita_provisional).executeTakeFirst();
+            if (!otpRecord)
+                throw new common_1.NotFoundException('Solicitud de cita no encontrada.');
+            if (otpRecord.codigo !== codigo) {
+                await trx.updateTable('otp_codes').set({ intentos: otpRecord.intentos + 1 }).where('id', '=', otpRecord.id).execute();
+                if (otpRecord.intentos >= 2) {
+                    await trx.deleteFrom('otp_codes').where('id', '=', otpRecord.id).execute();
+                    await trx.deleteFrom('cita').where('id', '=', id_cita_provisional).execute();
+                    throw new common_1.UnauthorizedException('Código incorrecto. La solicitud ha sido cancelada por demasiados intentos.');
+                }
+                throw new common_1.UnauthorizedException('Código incorrecto.');
+            }
+            if (new Date() > otpRecord.fecha_expiracion)
+                throw new common_1.UnauthorizedException('El código ha expirado.');
+            if (otpRecord.datos_cliente_json) {
+                const clientData = JSON.parse(otpRecord.datos_cliente_json);
+                const newUser = await this.usersService.create(clientData);
+                await trx.updateTable('cita').set({ id_cliente: newUser.id }).where('id', '=', id_cita_provisional).execute();
+            }
+            const result = await trx.updateTable('cita').set({ estado: 'PENDIENTE' }).where('id', '=', id_cita_provisional).where('estado', '=', 'PENDIENTE_CONFIRMACION').executeTakeFirst();
+            if (result.numUpdatedRows === 0n)
+                throw new common_1.ConflictException('Esta cita ya ha sido confirmada o cancelada.');
+            await trx.deleteFrom('otp_codes').where('id', '=', otpRecord.id).execute();
+            return { message: 'Cita confirmada correctamente.' };
+        });
+    }
+    async createProvisionalAppointmentAndSendOtp(userId, requestDto) {
+        const service = await this.servicesService.findOne(requestDto.id_servicio);
+        await this.checkAvailabilityForClient(requestDto.id_barbero, new Date(requestDto.fecha_hora_inicio));
+        return this.db.transaction().execute(async (trx) => {
+            const endTime = new Date(new Date(requestDto.fecha_hora_inicio).getTime() + 30 * 60000);
+            const provisionalAppointmentResult = await trx
+                .insertInto('cita')
+                .values({
+                id_barbero: requestDto.id_barbero,
+                id_servicio: requestDto.id_servicio,
+                id_cliente: userId,
+                fecha_hora_inicio: new Date(requestDto.fecha_hora_inicio),
+                fecha_hora_fin: endTime,
+                estado: 'PENDIENTE_CONFIRMACION',
+                precio_final: service.precio_base,
+            })
+                .executeTakeFirstOrThrow();
+            const provisionalAppointmentId = Number(provisionalAppointmentResult.insertId);
+            const otpCode = (0, crypto_1.randomInt)(100000, 999999).toString();
+            const expirationDate = new Date(Date.now() + 10 * 60 * 1000);
+            let newClientDataJson = null;
+            if (userId === null && 'nombre_cliente' in requestDto) {
+                newClientDataJson = JSON.stringify({
+                    nombre: requestDto.nombre_cliente,
+                    apellidos: requestDto.apellidos_cliente,
+                    telefono: requestDto.telefono_cliente,
+                    fecha_nacimiento: requestDto.fecha_nacimiento_cliente,
+                    tipo_perfil: 'CLIENTE',
+                });
+            }
+            await trx.insertInto('otp_codes').values({
+                id_cita_provisional: provisionalAppointmentId,
+                codigo: otpCode,
+                fecha_expiracion: expirationDate,
+                datos_cliente_json: newClientDataJson,
+            }).execute();
+            await this.messagingService.sendOtp(requestDto.canal_contacto_cliente, `Tu código de confirmación para Gentleman Barbershop es: ${otpCode}`);
+            return { id_cita_provisional: provisionalAppointmentId };
+        });
+    }
+    async validateEntities(dto) {
         const barbero = await this.usersService.findOne(dto.id_barbero);
         if (!['ADMIN', 'BARBERO', 'TATUADOR'].includes(barbero.rol)) {
-            throw new common_1.BadRequestException('El ID de barbero proporcionado no existe.');
+            throw new common_1.BadRequestException('El ID proporcionado no corresponde a un proveedor de servicios.');
         }
-        if (dto.estado === 'PENDIENTE') {
-            if (!dto.id_cliente || !dto.id_servicio) {
-                throw new common_1.BadRequestException('Las citas pendientes deben tener cliente y servicio.');
-            }
+        if (dto.id_cliente)
             await this.usersService.findOne(dto.id_cliente);
+        if (dto.id_servicio)
             await this.servicesService.findOne(dto.id_servicio);
-        }
-        const isAllowedToManage = creator && ['ADMIN', 'BARBERO'].includes(creator.rol);
-        if (dto.estado === 'DESCANSO' && !isAllowedToManage) {
-            throw new common_1.ForbiddenException('No tienes permisos para crear un descanso.');
-        }
-        if (dto.fecha_hora_fin && !isAllowedToManage) {
-            throw new common_1.ForbiddenException('No tienes permisos para establecer una hora de fin manual.');
-        }
     }
-    async calculateEndTime(dto) {
-        const fechaInicio = new Date(dto.fecha_hora_inicio);
+    async calculatePriceAndDurationForStaff(dto) {
+        const startTime = new Date(dto.fecha_hora_inicio);
+        let endTime;
+        let finalPrice = null;
         if (dto.fecha_hora_fin) {
-            const fechaFinManual = new Date(dto.fecha_hora_fin);
-            if (fechaFinManual <= fechaInicio) {
+            endTime = new Date(dto.fecha_hora_fin);
+            if (endTime <= startTime)
                 throw new common_1.BadRequestException('La hora de fin debe ser posterior a la hora de inicio.');
-            }
-            return fechaFinManual;
         }
-        if (dto.id_servicio) {
-            const servicio = await this.servicesService.findOne(dto.id_servicio);
-            return new Date(fechaInicio.getTime() + servicio.duracion_minutos * 60000);
+        else if (dto.id_servicio) {
+            const service = await this.servicesService.findOne(dto.id_servicio);
+            endTime = new Date(startTime.getTime() + service.duracion_minutos * 60000);
         }
-        return new Date(fechaInicio.getTime() + 30 * 60000);
+        else {
+            endTime = new Date(startTime.getTime() + 30 * 60000);
+        }
+        if (dto.estado === 'PENDIENTE' && dto.id_servicio) {
+            const service = await this.servicesService.findOne(dto.id_servicio);
+            finalPrice = service.precio_base;
+        }
+        return { endTime, finalPrice };
     }
-    prepareAppointmentData(dto, fecha_hora_fin) {
-        const fecha_hora_inicio = new Date(dto.fecha_hora_inicio);
-        return {
-            id_barbero: dto.id_barbero,
-            estado: dto.estado,
-            fecha_hora_inicio,
-            fecha_hora_fin,
-            precio_final: null,
-            id_cliente: dto.estado === 'PENDIENTE' ? dto.id_cliente : null,
-            id_servicio: dto.estado === 'PENDIENTE' ? dto.id_servicio : null,
-        };
+    async checkAvailabilityForClient(barberoId, startTime) {
+        const dayOfWeek = startTime.getDay() === 0 ? 7 : startTime.getDay();
+        const time = startTime.toTimeString().slice(0, 5);
+        const blocks = await this.recurringBlocksService.findAllForUser(barberoId);
+        const isBlockedByRecurrence = blocks.some(b => b.dia_semana === dayOfWeek && time >= b.hora_inicio && time < b.hora_fin);
+        if (isBlockedByRecurrence) {
+            throw new common_1.ConflictException('El horario no está disponible (descanso programado).');
+        }
+        const endTime = new Date(startTime.getTime() + 30 * 60000);
+        const existingAppointment = await this.db
+            .selectFrom('cita')
+            .select('id')
+            .where('id_barbero', '=', barberoId)
+            .where('estado', 'in', ['PENDIENTE', 'CERRADO', 'DESCANSO'])
+            .where('fecha_hora_inicio', '<', endTime)
+            .where('fecha_hora_fin', '>', startTime)
+            .executeTakeFirst();
+        if (existingAppointment) {
+            throw new common_1.ConflictException('El horario seleccionado ya no está disponible.');
+        }
     }
     async findAll() {
         return this.db.selectFrom('cita').selectAll().execute();
@@ -121,6 +226,8 @@ exports.AppointmentsService = AppointmentsService = __decorate([
     __param(0, (0, common_1.Inject)(database_provider_1.DATABASE_TOKEN)),
     __metadata("design:paramtypes", [kysely_1.Kysely,
         services_service_1.ServicesService,
-        users_service_1.UsersService])
+        users_service_1.UsersService,
+        recurring_blocks_service_1.RecurringBlocksService,
+        messaging_service_1.MessagingService])
 ], AppointmentsService);
 //# sourceMappingURL=appointments.service.js.map

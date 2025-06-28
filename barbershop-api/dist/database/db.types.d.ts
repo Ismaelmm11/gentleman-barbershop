@@ -28,7 +28,7 @@ export interface CitaTable {
     fecha_hora_inicio: Date;
     fecha_hora_fin: Date;
     precio_final: number | null;
-    estado: 'PENDIENTE' | 'CERRADO' | 'CANCELADO' | 'DESCANSO';
+    estado: 'PENDIENTE_CONFIRMACION' | 'PENDIENTE' | 'CERRADO' | 'CANCELADO' | 'DESCANSO';
 }
 export interface MarcaTable {
     id: Generated<number>;
@@ -75,6 +75,22 @@ export interface TokenBlocklistTable {
     jti: string;
     fecha_expiracion: Date;
 }
+export interface HorarioBloqueadoRecurrenteTable {
+    id: Generated<number>;
+    id_usuario: number;
+    dia_semana: number;
+    hora_inicio: string;
+    hora_fin: string;
+    titulo: string | null;
+}
+export interface OtpCodesTable {
+    id: Generated<number>;
+    id_cita_provisional: number;
+    codigo: string;
+    fecha_expiracion: Date;
+    intentos: Generated<number>;
+    datos_cliente_json: string | null;
+}
 export interface VistaDiariaBarbero {
     fecha: Date;
     id_barbero: number;
@@ -97,5 +113,7 @@ export interface DB {
     producto_pedido: ProductoPedidoTable;
     cita_producto: CitaProductoTable;
     token_blocklist: TokenBlocklistTable;
+    horario_bloqueado_recurrente: HorarioBloqueadoRecurrenteTable;
+    otp_codes: OtpCodesTable;
     VISTA_DIARIA_BARBERO: VistaDiariaBarbero;
 }

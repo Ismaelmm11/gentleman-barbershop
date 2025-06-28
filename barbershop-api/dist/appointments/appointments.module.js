@@ -12,12 +12,13 @@ const appointments_service_1 = require("./appointments.service");
 const appointments_controller_1 = require("./appointments.controller");
 const users_module_1 = require("../users/users.module");
 const services_module_1 = require("../services/services.module");
+const recurring_blocks_module_1 = require("../recurring-blocks/recurring-blocks.module");
 let AppointmentsModule = class AppointmentsModule {
 };
 exports.AppointmentsModule = AppointmentsModule;
 exports.AppointmentsModule = AppointmentsModule = __decorate([
     (0, common_1.Module)({
-        imports: [users_module_1.UsersModule, services_module_1.ServicesModule],
+        imports: [users_module_1.UsersModule, services_module_1.ServicesModule, recurring_blocks_module_1.RecurringBlocksModule],
         controllers: [appointments_controller_1.AppointmentsController],
         providers: [appointments_service_1.AppointmentsService],
     })

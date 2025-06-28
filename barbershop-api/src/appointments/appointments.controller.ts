@@ -1,8 +1,11 @@
 // barbershop-api/src/appointments/appointments.controller.ts
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseIntPipe, HttpCode, HttpStatus } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
+import { RequestReturningAppointmentDto } from './dto/request-returning-appointment.dto';
+import { RequestNewAppointmentDto } from './dto/request-new-appointment.dto';
+import { ConfirmAppointmentDto } from './dto/confirm-appointment.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Public } from '../auth/decorators/public.decorator';
@@ -26,13 +29,60 @@ export class AppointmentsController {
    * incluyendo clientes nuevos no autenticados, pueda enviar una solicitud para crear una cita.
    * La lógica para gestionar si es un cliente nuevo o existente reside en el servicio.
    */
+  // @Public()
+  // @Post()
+  // create(
+  //   @Body() createAppointmentDto: CreateAppointmentDto,
+  //   @GetUser() creator?: { userId: number; rol: string },
+  // ) {
+  //   return this.appointmentsService.create(createAppointmentDto, creator);
+  // }
+
+  // --- ENDPOINTS PÚBLICOS PARA EL FLUJO OTP DEL CLIENTE ---
+
+  /**
+   * Ruta para que un cliente existente solicite una cita.
+   */
   @Public()
-  @Post()
-  create(
+  @Post('request-returning')
+  @HttpCode(HttpStatus.OK)
+  requestForReturningClient(@Body() requestDto: RequestReturningAppointmentDto) {
+    return this.appointmentsService.requestForReturningClient(requestDto);
+  }
+
+  /**
+   * Ruta para que un cliente nuevo solicite una cita.
+   */
+  @Public()
+  @Post('request-new')
+  @HttpCode(HttpStatus.OK)
+  requestForNewClient(@Body() requestDto: RequestNewAppointmentDto) {
+    return this.appointmentsService.requestForNewClient(requestDto);
+  }
+
+  /**
+   * Ruta para que un cliente confirme su cita con el código OTP.
+   */
+  @Public()
+  @Post('confirm')
+  @HttpCode(HttpStatus.OK)
+  confirmAppointment(@Body() confirmDto: ConfirmAppointmentDto) {
+    return this.appointmentsService.confirmAppointment(confirmDto);
+  }
+
+  // --- ENDPOINTS PROTEGIDOS PARA LA GESTIÓN INTERNA DEL PERSONAL ---
+
+  /**
+   * Endpoint para que el personal cree citas o descansos directamente,
+   * saltándose el flujo de verificación OTP.
+   */
+  @Post('internal')
+  @Roles('ADMIN', 'BARBERO', 'TATUADOR')
+  createInternal(
+    @GetUser() creator: { userId: number },
     @Body() createAppointmentDto: CreateAppointmentDto,
-    @GetUser() creator?: { userId: number; rol: string },
   ) {
-    return this.appointmentsService.create(createAppointmentDto, creator);
+    return this.appointmentsService.createInternal(creator.userId, createAppointmentDto);
   }
 
   /**

@@ -8,6 +8,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { FindAllUsersQueryDto } from './dto/find-all-users-query.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { RecurringBlocksService } from 'src/recurring-blocks/recurring-blocks.service';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -15,8 +16,12 @@ export class UsersService {
   /**
    * El constructor inyecta la instancia de Kysely (nuestra conexión a la BD)
    * que hemos configurado y hecho disponible globalmente en el DatabaseModule.
+   * El RecurringBlocksService, para asociar a los barberos/tatuadores un horario.
    */
-  constructor(@Inject(DATABASE_TOKEN) private readonly db: Kysely<DB>) { }
+  constructor(
+    @Inject(DATABASE_TOKEN) private readonly db: Kysely<DB>,
+    private readonly recurringBlocksService: RecurringBlocksService,
+  ) { }
 
   /**
    * Crea un nuevo usuario y su perfil asociado dentro de una transacción.
@@ -29,7 +34,7 @@ export class UsersService {
     // Separamos los datos del perfil de los datos del usuario.
     const { tipo_perfil, username, password, fecha_nacimiento, ...restOfUserData } = createUserDto;
 
-    if(tipo_perfil === 'ADMIN'){
+    if (tipo_perfil === 'ADMIN') {
       throw new BadRequestException(
         'No es posible crear nuevos administradores.',
       );
@@ -100,6 +105,26 @@ export class UsersService {
       // Si todo va bien, la transacción devuelve el ID del nuevo usuario.
       return userId;
     });
+
+    // --- LÓGICA POST-CREACIÓN (Fuera de la transacción principal) ---
+    // 3. SI EL NUEVO USUARIO ES PERSONAL, CREAR SUS DESCANSOS POR DEFECTO.
+    if (['BARBERO', 'TATUADOR'].includes(tipo_perfil)) {
+      // Usamos el RecurringBlocksService para crear los descansos por defecto.
+      // Lunes
+      await this.recurringBlocksService.create(newUserId, {
+        dias_semana: [1],
+        hora_inicio: '06:00',
+        hora_fin: '23:59',
+        titulo: 'Descanso por defecto',
+      });
+      // Domingo
+      await this.recurringBlocksService.create(newUserId, {
+        dias_semana: [7],
+        hora_inicio: '06:00',
+        hora_fin: '23:59',
+        titulo: 'Descanso por defecto',
+      });
+    }
 
     return this.findOne(newUserId);
   }
@@ -197,6 +222,25 @@ export class UsersService {
       .executeTakeFirst();
   }
 
+  // =======================================================================
+  // === NUEVO MÉTODO DE BÚSQUEDA PARA EL FLUJO DE CITAS ===================
+  // =======================================================================
+
+  /**
+   * Busca un usuario por su número de teléfono.
+   * Devuelve el usuario completo si lo encuentra, o null si no existe.
+   * Es una herramienta interna para ser usada por otros servicios.
+   * @param phone - El número de teléfono a buscar.
+   * @returns El objeto de usuario o null.
+   */
+  async findOneByPhone(phone: string) {
+    return this.db
+      .selectFrom('usuario')
+      .selectAll()
+      .where('telefono', '=', phone)
+      .executeTakeFirst(); // Devuelve el primer resultado o undefined si no hay ninguno.
+  }
+
   /**
    * Actualiza los datos de un usuario.
    * Sigue un patrón de 2 pasos compatible con MySQL.
@@ -224,39 +268,6 @@ export class UsersService {
 
     // 2. Buscamos y devolvemos el usuario con los datos ya actualizados.
     return this.findOne(id);
-  }
-
-  /**
-   * Cambia la contraseña de un usuario autenticado.
-   * @param userId El ID del usuario (obtenido del token).
-   * @param changePasswordDto Objeto con la contraseña antigua y la nueva.
-   */
-  async changePassword(userId: number, changePasswordDto: ChangePasswordDto) {
-    // 1. Buscamos al usuario completo, incluyendo su contraseña actual.
-    const user = await this.db.selectFrom('usuario').selectAll().where('id', '=', userId).executeTakeFirst();
-
-    if (!user || !user.password) {
-      throw new UnauthorizedException('El usuario no puede cambiar la contraseña.');
-    }
-
-    // 2. Comparamos la "contraseña antigua" proporcionada con la que hay en la BD.
-    const isOldPasswordCorrect = await bcrypt.compare(changePasswordDto.oldPassword, user.password);
-
-    if (!isOldPasswordCorrect) {
-      throw new UnauthorizedException('La contraseña antigua es incorrecta.');
-    }
-
-    // 3. Hasheamos la nueva contraseña.
-    const newHashedPassword = await bcrypt.hash(changePasswordDto.newPassword, 10);
-
-    // 4. Actualizamos la BD con la nueva contraseña hasheada.
-    await this.db
-      .updateTable('usuario')
-      .set({ password: newHashedPassword })
-      .where('id', '=', userId)
-      .execute();
-
-    return { message: 'Contraseña actualizada correctamente.' };
   }
 
   /**
@@ -297,5 +308,90 @@ export class UsersService {
     }
 
     return { message: `Usuario con ID ${id} eliminado correctamente.` };
+  }
+
+  /**
+   * Busca un usuario por su número de teléfono. Si no existe, lo crea.
+   * @param clientData - Los datos del cliente, incluyendo ahora la fecha de nacimiento.
+   * @param trx - Un objeto de transacción opcional de Kysely.
+   * @returns El usuario encontrado o recién creado.
+   */
+  async findOrCreateClient(
+    clientData: { nombre: string; apellidos: string; telefono: string; fecha_nacimiento: string },
+    trx: Kysely<DB> = this.db,
+  ) {
+    const existingUser = await trx
+      .selectFrom('usuario')
+      .selectAll()
+      .where('telefono', '=', clientData.telefono)
+      .executeTakeFirst();
+
+    if (existingUser) {
+      return existingUser;
+    }
+
+    return this.db.transaction().execute(async (innerTrx) => {
+      const newUserResult = await innerTrx
+        .insertInto('usuario')
+        .values({
+          nombre: clientData.nombre,
+          apellidos: clientData.apellidos,
+          telefono: clientData.telefono,
+          // CORRECCIÓN: Usamos la fecha de nacimiento proporcionada.
+          fecha_nacimiento: new Date(clientData.fecha_nacimiento),
+          username: null,
+          password: null,
+        })
+        .executeTakeFirstOrThrow();
+
+      const newUserId = Number(newUserResult.insertId);
+
+      await innerTrx
+        .insertInto('perfil')
+        .values({
+          id_usuario: newUserId,
+          tipo: 'CLIENTE',
+        })
+        .execute();
+
+      return trx
+        .selectFrom('usuario')
+        .selectAll()
+        .where('id', '=', newUserId)
+        .executeTakeFirstOrThrow();
+    });
+  }
+
+  /**
+   * Cambia la contraseña de un usuario autenticado.
+   * @param userId El ID del usuario (obtenido del token).
+   * @param changePasswordDto Objeto con la contraseña antigua y la nueva.
+   */
+  async changePassword(userId: number, changePasswordDto: ChangePasswordDto) {
+    // 1. Buscamos al usuario completo, incluyendo su contraseña actual.
+    const user = await this.db.selectFrom('usuario').selectAll().where('id', '=', userId).executeTakeFirst();
+
+    if (!user || !user.password) {
+      throw new UnauthorizedException('El usuario no puede cambiar la contraseña.');
+    }
+
+    // 2. Comparamos la "contraseña antigua" proporcionada con la que hay en la BD.
+    const isOldPasswordCorrect = await bcrypt.compare(changePasswordDto.oldPassword, user.password);
+
+    if (!isOldPasswordCorrect) {
+      throw new UnauthorizedException('La contraseña antigua es incorrecta.');
+    }
+
+    // 3. Hasheamos la nueva contraseña.
+    const newHashedPassword = await bcrypt.hash(changePasswordDto.newPassword, 10);
+
+    // 4. Actualizamos la BD con la nueva contraseña hasheada.
+    await this.db
+      .updateTable('usuario')
+      .set({ password: newHashedPassword })
+      .where('id', '=', userId)
+      .execute();
+
+    return { message: 'Contraseña actualizada correctamente.' };
   }
 }

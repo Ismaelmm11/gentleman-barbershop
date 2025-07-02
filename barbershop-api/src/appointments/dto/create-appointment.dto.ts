@@ -29,10 +29,9 @@ export class CreateAppointmentDto {
   @IsTimeIn5MinuteIntervals()
   fecha_hora_inicio: string;
 
-  @IsOptional()
   @IsDateString()
   @IsTimeIn5MinuteIntervals()
-  fecha_hora_fin?: string;
+  fecha_hora_fin: string;
 
   /**
    * El estado del evento a crear. Puede ser una cita 'PENDIENTE'

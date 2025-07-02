@@ -6,8 +6,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.IsTimeIn5MinuteIntervalsConstraint = void 0;
+exports.IsTimeIn30MinuteIntervalsConstraint = exports.IsTimeIn5MinuteIntervalsConstraint = void 0;
 exports.IsTimeIn5MinuteIntervals = IsTimeIn5MinuteIntervals;
+exports.IsTimeIn30MinuteIntervals = IsTimeIn30MinuteIntervals;
 const class_validator_1 = require("class-validator");
 let IsTimeIn5MinuteIntervalsConstraint = class IsTimeIn5MinuteIntervalsConstraint {
     validate(dateString, args) {
@@ -26,6 +27,23 @@ exports.IsTimeIn5MinuteIntervalsConstraint = IsTimeIn5MinuteIntervalsConstraint;
 exports.IsTimeIn5MinuteIntervalsConstraint = IsTimeIn5MinuteIntervalsConstraint = __decorate([
     (0, class_validator_1.ValidatorConstraint)({ name: 'isTimeIn5MinuteIntervals', async: false })
 ], IsTimeIn5MinuteIntervalsConstraint);
+let IsTimeIn30MinuteIntervalsConstraint = class IsTimeIn30MinuteIntervalsConstraint {
+    validate(dateString, args) {
+        if (typeof dateString !== 'string')
+            return false;
+        const date = new Date(dateString);
+        if (isNaN(date.getTime()))
+            return false;
+        return date.getMinutes() % 30 === 0;
+    }
+    defaultMessage(args) {
+        return `${args.property} debe ser en un intervalo de 30 minutos (ej: 10:00, 10:30).`;
+    }
+};
+exports.IsTimeIn30MinuteIntervalsConstraint = IsTimeIn30MinuteIntervalsConstraint;
+exports.IsTimeIn30MinuteIntervalsConstraint = IsTimeIn30MinuteIntervalsConstraint = __decorate([
+    (0, class_validator_1.ValidatorConstraint)({ name: 'isTimeIn30MinuteIntervals', async: false })
+], IsTimeIn30MinuteIntervalsConstraint);
 function IsTimeIn5MinuteIntervals(validationOptions) {
     return function (object, propertyName) {
         (0, class_validator_1.registerDecorator)({
@@ -34,6 +52,17 @@ function IsTimeIn5MinuteIntervals(validationOptions) {
             options: validationOptions,
             constraints: [],
             validator: IsTimeIn5MinuteIntervalsConstraint,
+        });
+    };
+}
+function IsTimeIn30MinuteIntervals(validationOptions) {
+    return function (object, propertyName) {
+        (0, class_validator_1.registerDecorator)({
+            target: object.constructor,
+            propertyName: propertyName,
+            options: validationOptions,
+            constraints: [],
+            validator: IsTimeIn30MinuteIntervalsConstraint,
         });
     };
 }

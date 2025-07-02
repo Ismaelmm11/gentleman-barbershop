@@ -35,7 +35,7 @@ __decorate([
 ], RequestNewAppointmentDto.prototype, "id_servicio", void 0);
 __decorate([
     (0, class_validator_1.IsDateString)(),
-    (0, time_validation_decorator_1.IsTimeIn5MinuteIntervals)(),
+    (0, time_validation_decorator_1.IsTimeIn30MinuteIntervals)(),
     __metadata("design:type", String)
 ], RequestNewAppointmentDto.prototype, "fecha_hora_inicio", void 0);
 __decorate([

@@ -6,20 +6,17 @@ import { MessagingService } from './messaging.service';
 import { TelegramService } from './providers/telegram.service';
 
 /**
- * Módulo genérico para manejar el envío de mensajes (OTP, notificaciones, etc.).
- *
- * @Global() - Lo convierte en un módulo global, haciendo que sus servicios
- * exportados estén disponibles en toda la aplicación sin necesidad de re-importarlo.
+ * Módulo genérico para manejar el envío de mensajes.
+ * Declarado como @Global para que MessagingService esté disponible
+ * en toda la aplicación sin necesidad de re-importarlo.
  */
 @Global()
 @Module({
-  // Importamos HttpModule para hacer peticiones HTTP (para llamar a la API de Telegram)
-  // y ConfigModule para leer las credenciales del archivo .env.
   imports: [HttpModule, ConfigModule],
   providers: [
-    // El servicio principal que usarán otros módulos.
+    // El servicio principal (recepcionista).
     MessagingService,
-    // La implementación específica para Telegram.
+    // La implementación específica (el especialista de Telegram).
     TelegramService,
   ],
   // Exportamos SÓLO el servicio principal para mantener la abstracción.

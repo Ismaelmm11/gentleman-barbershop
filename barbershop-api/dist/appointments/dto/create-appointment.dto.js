@@ -46,7 +46,6 @@ __decorate([
     __metadata("design:type", String)
 ], CreateAppointmentDto.prototype, "fecha_hora_inicio", void 0);
 __decorate([
-    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsDateString)(),
     (0, time_validation_decorator_1.IsTimeIn5MinuteIntervals)(),
     __metadata("design:type", String)

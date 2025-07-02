@@ -1,6 +1,7 @@
 // barbershop-api/src/appointments/dto/confirm-appointment.dto.ts
 import { IsInt, IsPositive, IsString, IsNotEmpty, Length } from 'class-validator';
 
+
 /**
  * DTO para el segundo paso del flujo de reserva: la confirmación con el código OTP.
  */

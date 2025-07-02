@@ -1,6 +1,6 @@
 // barbershop-api/src/appointments/dto/request-new-appointment.dto.ts
 import { IsInt, IsPositive, IsDateString, IsNotEmpty, IsString, IsPhoneNumber } from 'class-validator';
-import { IsTimeIn5MinuteIntervals } from '../../common/decorators/time-validation.decorator';
+import { IsTimeIn30MinuteIntervals } from '../../common/decorators/time-validation.decorator';
 
 /**
  * DTO para solicitar una cita como cliente nuevo.
@@ -17,7 +17,7 @@ export class RequestNewAppointmentDto {
   id_servicio: number;
 
   @IsDateString()
-  @IsTimeIn5MinuteIntervals()
+  @IsTimeIn30MinuteIntervals()
   fecha_hora_inicio: string;
 
   // --- Datos del Nuevo Cliente (Obligatorios) ---

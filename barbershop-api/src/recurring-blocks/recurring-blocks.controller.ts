@@ -9,6 +9,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { GetUser } from '../auth/decorators/get-user.decorator';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
+// Al no haber ninguna ruta pública declaramos aqui los Roles, de esta manera solo usuarios registrados pueden acceder a esta ruta.
 @Roles('ADMIN', 'BARBERO', 'TATUADOR')
 @Controller('recurring-blocks')
 export class RecurringBlocksController {

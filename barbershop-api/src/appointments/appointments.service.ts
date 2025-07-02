@@ -193,20 +193,16 @@ export class AppointmentsService {
   
   private async calculatePriceAndDurationForStaff(dto: CreateAppointmentDto) {
     const startTime = new Date(dto.fecha_hora_inicio);
-    let endTime: Date;
+    const endTime = new Date(dto.fecha_hora_fin);
     let finalPrice: number | null = null;
 
-    if (dto.fecha_hora_fin) {
-        endTime = new Date(dto.fecha_hora_fin);
-        if (endTime <= startTime) throw new BadRequestException('La hora de fin debe ser posterior a la hora de inicio.');
-    } else if (dto.id_servicio) {
-        const service = await this.servicesService.findOne(dto.id_servicio);
-        endTime = new Date(startTime.getTime() + service.duracion_minutos * 60000);
-    } else {
-        endTime = new Date(startTime.getTime() + 30 * 60000); // Descanso por defecto para el personal
+    // 1. Validar que la hora de fin es posterior a la de inicio.
+    if (endTime <= startTime) {
+      throw new BadRequestException('La hora de fin debe ser posterior a la hora de inicio.');
     }
     
-    if (dto.estado === 'PENDIENTE' && dto.id_servicio) {
+    // 2. Calcular el precio si se ha proporcionado un servicio.
+    if (dto.id_servicio) {
         const service = await this.servicesService.findOne(dto.id_servicio);
         finalPrice = service.precio_base;
     }
@@ -229,7 +225,7 @@ export class AppointmentsService {
         .selectFrom('cita')
         .select('id')
         .where('id_barbero', '=', barberoId)
-        .where('estado', 'in', ['PENDIENTE', 'CERRADO', 'DESCANSO'])
+        .where('estado', 'in', ['PENDIENTE_CONFIRMACION', 'PENDIENTE', 'CERRADO', 'DESCANSO'])
         .where('fecha_hora_inicio', '<', endTime)
         .where('fecha_hora_fin', '>', startTime)
         .executeTakeFirst();

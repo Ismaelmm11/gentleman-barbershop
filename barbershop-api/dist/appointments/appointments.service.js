@@ -146,21 +146,12 @@ let AppointmentsService = class AppointmentsService {
     }
     async calculatePriceAndDurationForStaff(dto) {
         const startTime = new Date(dto.fecha_hora_inicio);
-        let endTime;
+        const endTime = new Date(dto.fecha_hora_fin);
         let finalPrice = null;
-        if (dto.fecha_hora_fin) {
-            endTime = new Date(dto.fecha_hora_fin);
-            if (endTime <= startTime)
-                throw new common_1.BadRequestException('La hora de fin debe ser posterior a la hora de inicio.');
+        if (endTime <= startTime) {
+            throw new common_1.BadRequestException('La hora de fin debe ser posterior a la hora de inicio.');
         }
-        else if (dto.id_servicio) {
-            const service = await this.servicesService.findOne(dto.id_servicio);
-            endTime = new Date(startTime.getTime() + service.duracion_minutos * 60000);
-        }
-        else {
-            endTime = new Date(startTime.getTime() + 30 * 60000);
-        }
-        if (dto.estado === 'PENDIENTE' && dto.id_servicio) {
+        if (dto.id_servicio) {
             const service = await this.servicesService.findOne(dto.id_servicio);
             finalPrice = service.precio_base;
         }
@@ -179,7 +170,7 @@ let AppointmentsService = class AppointmentsService {
             .selectFrom('cita')
             .select('id')
             .where('id_barbero', '=', barberoId)
-            .where('estado', 'in', ['PENDIENTE', 'CERRADO', 'DESCANSO'])
+            .where('estado', 'in', ['PENDIENTE_CONFIRMACION', 'PENDIENTE', 'CERRADO', 'DESCANSO'])
             .where('fecha_hora_inicio', '<', endTime)
             .where('fecha_hora_fin', '>', startTime)
             .executeTakeFirst();

@@ -33,10 +33,12 @@ export interface CitaTable {
 export interface MarcaTable {
     id: Generated<number>;
     nombre: string;
+    url_imagen: string | null;
 }
 export interface CategoriaTable {
     id: Generated<number>;
     nombre: string;
+    url_imagen: string | null;
 }
 export interface ProductoTable {
     id: Generated<number>;

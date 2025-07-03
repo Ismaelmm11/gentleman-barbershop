@@ -1,7 +1,7 @@
 -- =================================================================================
 -- Script de Migración Inicial para Gentleman Barbershop
--- Versión: 1.0
--- Fecha: 09 de Junio, 2025
+-- Versión: 3.0
+-- Fecha: 24 de Junio, 2025
 -- Descripción:  Script de Creación de la Tabla horario_bloqueado_recurrente
 --               Este script SQL define la tabla necesaria para almacenar los descansos y bloqueos de tiempo recurrentes que cada barbero puede configurar.
 -- =================================================================================
@@ -94,3 +94,56 @@ ALTER TABLE `otp_codes`
 ADD COLUMN `datos_cliente_json` TEXT NULL 
 COMMENT 'Almacena los datos del nuevo cliente en formato JSON, a la espera de la confirmación.' 
 AFTER `intentos`;
+
+-- =================================================================================
+-- Evento de Limpieza para Códigos OTP y Citas Provisionales Caducadas
+-- Versión: 1.1
+-- Descripción: Este evento se ejecuta periódicamente para limpiar la base de datos.
+--              1. Borra los códigos OTP cuya fecha de expiración ya ha pasado.
+--              2. Borra las citas en estado 'PENDIENTE_CONFIRMACION' asociadas
+--                 a esos códigos caducados.
+-- =================================================================================
+
+DELIMITER $$
+
+CREATE EVENT `limpiar_otps_y_citas_caducadas`
+ON SCHEDULE EVERY 2 MINUTE
+COMMENT 'Limpia los códigos OTP y las citas provisionales que han expirado.'
+DO
+BEGIN
+  -- Primero, identificamos las citas provisionales cuyos OTPs han caducado.
+  -- Usamos una variable para almacenar sus IDs.
+  DECLARE done INT DEFAULT FALSE;
+  DECLARE cita_id INT;
+  DECLARE cur CURSOR FOR 
+    SELECT c.id 
+    FROM cita c
+    JOIN otp_codes o ON c.id = o.id_cita_provisional
+    WHERE c.estado = 'PENDIENTE_CONFIRMACION' AND o.fecha_expiracion < NOW();
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+
+  -- Abrimos el cursor para empezar a leer.
+  OPEN cur;
+
+  read_loop: LOOP
+    FETCH cur INTO cita_id;
+    IF done THEN
+      LEAVE read_loop;
+    END IF;
+    -- Para cada cita caducada encontrada, borramos su OTP y la propia cita.
+    -- Hacemos esto en un bucle para asegurar la integridad.
+    DELETE FROM otp_codes WHERE id_cita_provisional = cita_id;
+    DELETE FROM cita WHERE id = cita_id;
+  END LOOP;
+
+  CLOSE cur;
+END$$
+
+DELIMITER ;
+
+
+
+  
+
+ 

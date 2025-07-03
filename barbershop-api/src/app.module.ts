@@ -9,6 +9,8 @@ import { AuthModule } from './auth/auth.module';
 import { ServicesModule } from './services/services.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { MessagingModule } from './messaging/messaging.module';
+import { MediaModule } from './media/media.module';
+
 
 @Module({
   imports: [
@@ -21,6 +23,7 @@ import { MessagingModule } from './messaging/messaging.module';
     ServicesModule,
     AppointmentsModule,
     MessagingModule,
+    MediaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -23,8 +23,8 @@ export declare class AppointmentsService {
         id_servicio: number | null;
         fecha_hora_inicio: Date;
         fecha_hora_fin: Date;
-        precio_final: number | null;
         estado: "PENDIENTE_CONFIRMACION" | "PENDIENTE" | "CERRADO" | "CANCELADO" | "DESCANSO";
+        precio_final: number | null;
     }>;
     requestForReturningClient(requestDto: RequestReturningAppointmentDto): Promise<{
         id_cita_provisional: number;
@@ -46,8 +46,8 @@ export declare class AppointmentsService {
         id_servicio: number | null;
         fecha_hora_inicio: Date;
         fecha_hora_fin: Date;
-        precio_final: number | null;
         estado: "PENDIENTE_CONFIRMACION" | "PENDIENTE" | "CERRADO" | "CANCELADO" | "DESCANSO";
+        precio_final: number | null;
     }[]>;
     findOne(id: number): Promise<{
         id: number;
@@ -56,8 +56,8 @@ export declare class AppointmentsService {
         id_servicio: number | null;
         fecha_hora_inicio: Date;
         fecha_hora_fin: Date;
-        precio_final: number | null;
         estado: "PENDIENTE_CONFIRMACION" | "PENDIENTE" | "CERRADO" | "CANCELADO" | "DESCANSO";
+        precio_final: number | null;
     }>;
     update(id: number, updateAppointmentDto: UpdateAppointmentDto): Promise<{
         id: number;
@@ -66,8 +66,8 @@ export declare class AppointmentsService {
         id_servicio: number | null;
         fecha_hora_inicio: Date;
         fecha_hora_fin: Date;
-        precio_final: number | null;
         estado: "PENDIENTE_CONFIRMACION" | "PENDIENTE" | "CERRADO" | "CANCELADO" | "DESCANSO";
+        precio_final: number | null;
     }>;
     remove(id: number): Promise<{
         message: string;

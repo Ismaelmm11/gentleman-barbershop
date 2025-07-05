@@ -18,6 +18,9 @@ const services_module_1 = require("./services/services.module");
 const appointments_module_1 = require("./appointments/appointments.module");
 const messaging_module_1 = require("./messaging/messaging.module");
 const media_module_1 = require("./media/media.module");
+const brands_module_1 = require("./brands/brands.module");
+const categories_module_1 = require("./categories/categories.module");
+const products_module_1 = require("./products/products.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -32,6 +35,9 @@ exports.AppModule = AppModule = __decorate([
             appointments_module_1.AppointmentsModule,
             messaging_module_1.MessagingModule,
             media_module_1.MediaModule,
+            brands_module_1.BrandsModule,
+            categories_module_1.CategoriesModule,
+            products_module_1.ProductsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

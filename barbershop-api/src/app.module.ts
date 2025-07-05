@@ -10,6 +10,9 @@ import { ServicesModule } from './services/services.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { MessagingModule } from './messaging/messaging.module';
 import { MediaModule } from './media/media.module';
+import { BrandsModule } from './brands/brands.module';
+import { CategoriesModule } from './categories/categories.module';
+import { ProductsModule } from './products/products.module';
 
 
 @Module({
@@ -24,6 +27,9 @@ import { MediaModule } from './media/media.module';
     AppointmentsModule,
     MessagingModule,
     MediaModule,
+    BrandsModule,
+    CategoriesModule,
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

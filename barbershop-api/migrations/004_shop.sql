@@ -16,3 +16,14 @@ ALTER TABLE `categoria`
 ADD COLUMN `url_imagen` VARCHAR(255) NULL 
 COMMENT 'URL de la imagen representativa de la categoría, alojada en un servicio externo.' 
 AFTER `nombre`;
+
+
+-- Añadir la columna para la imagen de la categoría
+ALTER TABLE `cita`
+ADD COLUMN `titulo` VARCHAR(255) NULL 
+COMMENT 'Titulo del descanso' 
+AFTER `estadp`;
+
+-- =================================================================================
+-- Fin del Script
+-- =================================================================================

@@ -1,0 +1,71 @@
+.fab-container {
+    position: relative;
+    width: 60px;
+    height: 60px;
+  }
+
+  .fab {
+    width: 60px;
+    height: 60px;
+    background-color: #6200ea;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    position: relative;
+    z-index: 2;
+  }
+
+  .fab.open {
+    background-color: #d81b60;
+    transform: rotate(45deg);
+  }
+
+  .fab-item {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background-color: #03a9f4;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  }
+
+  .fab.open + .fab-items .fab-item {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .fab-item:nth-child(1) {
+    top: -70px;
+    left: 0;
+  }
+
+  .fab-item:nth-child(2) {
+    top: -50px;
+    left: 50px;
+  }
+
+  .fab-item:nth-child(3) {
+    top: 0;
+    left: 70px;
+  }
+
+  .fab-items {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }

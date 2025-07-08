@@ -1,0 +1,634 @@
+/* --- ESTILO PARA LAS HORAS DE LA IZQUIERDA --- */
+.fc .fc-timegrid-slot-label-cushion {
+  font-family: "Playfair Display", serif; /* Tipografía corporativa para titulares */
+  color: #6d2e2c; /* Color Burdeos corporativo */
+  font-size: 1.1em;
+}
+
+/* --- ESTILO PARA LA COLUMNA DEL DÍA DE HOY --- */
+.fc .fc-day-today {
+  /* Un tono ligeramente más oscuro que el fondo para destacar la columna */
+  background-color: #efebe9 !important;
+}
+
+/* --- ESTILOS PARA LAS FILAS HORARIAS --- */
+.fc-timegrid-slot {
+  height: 4em !important;
+  border-top: 2px solid #e0e0e0 !important;
+}
+
+.fc-timegrid-slot-minor {
+  height: 4em !important;
+  border-top: 2px dotted #e0e0e0 !important;
+}
+
+.header-title-container {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* --- ESTILOS PARA LA CABECERA DE DÍAS --- */
+
+/* Contenedor de cada celda de día (LUN, MAR...) */
+.fc .fc-col-header-cell-cushion {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Nombre del día (LUN) */
+.calendar-header-day-name {
+  font-size: 0.75em;
+  font-weight: 600;
+  color: #5f6368;
+}
+
+/* Círculo base para TODOS los números de día */
+.calendar-header-day-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.5em;
+  height: 2.2em;
+  width: 2.2em;
+  border-radius: 50%;
+  background-color: transparent;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+/* --- ESTILOS ESPECÍFICOS PARA EL DÍA DE HOY --- */
+
+/* Estilo para el círculo del día de hoy */
+.fc-day-today .calendar-header-day-number {
+  background-color: #6d2e2c; /* Burdeos */
+  color: #fff; /* Texto blanco */
+}
+
+/* Estilo para el nombre del día de hoy */
+.fc-day-today .calendar-header-day-name {
+  font-weight: 700;
+  color: #2c2c2c; /* Negro carbón */
+}
+
+
+
+.view-mode-selector {
+  display: flex;
+  border: 1px solid #ccc;
+  width: fit-content;
+  border-radius: 8px;
+  overflow: hidden; /* Para que los bordes internos se vean bien */
+  margin-bottom: 0.7em;
+  margin-top: -1.5em;
+}
+
+.margin-view {
+  margin-top: 1em;
+  margin-bottom: -0.5em;
+}
+
+.view-mode-selector button {
+  background-color: #fff;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: bold;
+  color: #5f6368;
+  transition: background-color 0.2s, color 0.2s;
+  border-right: 1px solid #ccc; /* Separador entre botones */
+}
+
+.view-mode-selector button:last-child {
+  border-right: none; /* El último botón no necesita separador */
+}
+
+/* Estilo para el botón ACTIVO */
+.view-mode-selector button.active {
+  background-color: #6d2e2c; /* Burdeos */
+  color: #fff;
+}
+
+.view-mode-selector button:hover:not(.active) {
+  background-color: #f0f0f0; /* Un hover sutil para los no activos */
+}
+
+.custom-calendar-header {
+    text-align: center;
+}
+
+/* Contenedor para el título y la franja horaria */
+.header-title-container {
+  text-align: center; /* Centramos el texto como en la imagen */
+}
+
+/* Estilo para el título "Today" */
+.header-title {
+  font-size: 1.5em;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Estilo para la franja horaria "08:00 - 24:00" */
+.header-time-range {
+  font-size: 0.9em;
+  color: #5f6368;
+  margin: 4px 0 0 0;
+  cursor: pointer;
+}
+
+/* Contenedor para los selectores cuando están visibles */
+.time-select-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 4px 0 0 0;
+}
+
+.time-select-camouflaged {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border: 1px solid transparent;
+  background-color: transparent;
+  font-size: 0.9em;
+  color: #5f6368;
+  font-family: inherit;
+  padding: 2px 4px;
+  margin: 0 5px;
+  cursor: pointer;
+  transition: border-color 0.2s ease-in-out;
+}
+
+/* Estilo para el guion entre los selectores */
+.time-select-wrapper span {
+  font-size: 0.9em;
+  color: #5f6368;
+}
+
+/* El guion separador */
+.time-separator {
+  font-size: 1em;
+  font-weight: bold;
+  color: var(--color-text);
+  margin: 0 5px;
+}
+
+.center-header{
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+/* AQUÍ LA MAGIA: Cuando el ratón está encima, aparece el borde */
+.time-select-camouflaged:hover {
+  border-color: var(--color-text); /* Un color de borde sutil */
+}
+
+/* Estilo para el <select> cuando está enfocado (cuando la lista está abierta) */
+.time-select-camouflaged:focus {
+  outline: none; /* Quitamos el borde de foco por defecto del navegador */
+  border-color: #6d2e2c; /* Resaltamos el borde con el color Burdeos */
+  box-shadow: 0 0 8px rgba(109, 46, 44, 0.2); /* Una sombra sutil para darle profundidad */
+}
+
+/* Estilo para cada <option> individual de la lista */
+.time-select-camouflaged option {
+  background: #f4f2ef; /* Fondo corporativo blanco roto */
+  color: #2c2c2c; /* Texto corporativo carbón */
+  padding: 10px 8px; /* Un poco más de espacio interno para que respire */
+  font-weight: 500;
+}
+
+/* Estilo para la opción sobre la que pasas el ratón (hover) */
+.time-select-camouflaged option:hover {
+  background: #6d2e2c; /* AHORA usa el color Burdeos corporativo */
+  color: #fff;
+}
+
+/* Para navegadores basados en Webkit (Chrome, Safari, Edge) 
+   la opción seleccionada también tendrá el mismo estilo */
+.time-select-camouflaged option:checked {
+  background: #6d2e2c; /* Fondo Burdeos para la opción seleccionada */
+  color: #fff;
+  font-weight: 700;
+}
+
+.fc-timegrid-event-harness-inset {
+    right:0%;
+    left:0%;
+}
+
+.nav-button {
+    background-color: #6d2e2c;
+    width: 100px;
+    border: 1px solid #6d2e2c;
+    font-size: 1.2em; /* Hacemos los símbolos < > más grandes */
+    color: #F4F2EF;
+    cursor: pointer;
+    padding: 0 10px;
+    border-radius: 5%;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.nav-button:hover {
+    background-color: transparent;
+    color: #6d2e2c; 
+    
+}
+
+.panel-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Un poco más oscuro para más contraste */
+    z-index: 999;
+    
+    /* 👇 Clave para centrar el panel */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Estilo para el panel modal centrado */
+.modal-panel { /* Le cambiamos el nombre para que sea más claro */
+    width: 100%;
+    max-width: 600px; /* Ancho máximo para el panel */
+    background-color: #fff;
+    border-radius: 12px; /* Bordes más redondeados */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    z-index: 1000;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+
+/* El contenedor que envuelve el calendario y la capa de carga */
+.calendar-wrapper {
+    position: relative; /* Clave para que la capa de carga se posicione correctamente dentro */
+    min-height: 700px; /* Le damos una altura mínima para evitar que colapse */
+}
+
+/* La capa semitransparente que cubre el calendario */
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.7); /* Fondo blanco semitransparente */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10; /* Se asegura de que esté por encima del calendario */
+    border-radius: 8px; /* Opcional: para redondear las esquinas */
+    transition: opacity 0.2s ease-in-out;
+}
+
+
+.custom-event-content {
+  padding: 2px 4px;
+  font-size: 0.8em;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.event-time {
+  font-weight: 700;
+}
+
+.event-title {
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.event-client {
+  margin-top: auto; /* Empuja el nombre del cliente hacia abajo */
+}
+
+/* --- Estilos Generales para el Formulario del Panel --- */
+.modal-panel .form-group {
+    margin-bottom: 18px;
+    width: 400px;
+}
+
+.modal-panel label {
+    display: block;
+    margin-bottom: 8px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    color: #2C2C2C; /* Carbón */
+    font-size: 0.9em;
+}
+
+.modal-panel input[type="text"],
+.modal-panel input[type="date"],
+.modal-panel input[type="time"],
+.modal-panel input[type="number"],
+.modal-panel input[type="tel"],
+.modal-panel select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 1em;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.modal-panel input:focus,
+.modal-panel select:focus {
+    outline: none;
+    border-color: #6D2E2C; /* Burdeos */
+    box-shadow: 0 0 0 3px rgba(109, 46, 44, 0.15);
+}
+
+/* Para alinear los inputs de hora */
+.time-inputs-group {
+    display: flex;
+    justify-content: space-between;
+    width: 400px;
+    gap: 10px;
+}
+.time-inputs-group .form-group {
+    flex: 1;
+}
+
+.div-time{
+  width:100%;
+  max-width: 180px;
+  margin-bottom: 10px;
+}
+
+.close-panel-button {
+  position: absolute;
+  top: 15px;
+  left: 15px; /* Lo ponemos a la izquierda como pediste */
+  background: transparent;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+  color: #888;
+  line-height: 1;
+}
+
+.close-panel-button:hover {
+  color: #000;
+}
+
+#service-selected {
+  width: 100%;
+}
+
+/* --- Estilos para el Buscador de Clientes --- */
+.autocomplete-container {
+    position: relative;
+}
+
+.autocomplete-container .results-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    z-index: 1001; /* Por encima del panel */
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.autocomplete-container .results-list li {
+    padding: 10px 12px;
+    cursor: pointer;
+}
+
+.autocomplete-container .results-list li:hover {
+    background-color: #f0f0f0;
+}
+
+/* --- Estilos para los Botones de Acción del Panel --- */
+.panel-actions {
+    margin-top: 24px;
+    display: flex;
+    gap: 12px;
+    border-top: 1px solid #e0e0e0;
+    padding-top: 20px;
+}
+
+.panel-actions button {
+    flex-grow: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.panel-actions button:hover {
+    opacity: 0.85;
+}
+
+.button-primary {
+    background-color: #6D2E2C; /* Burdeos */
+    color: white;
+}
+
+.button-danger {
+    background-color: #A93226; /* Un rojo oscuro y elegante */
+    color: white;
+}
+
+.button-secondary {
+    background-color: #e0e0e0;
+    color: #333;
+}
+
+.button-link {
+    background: none;
+    border: none;
+    padding: 0;
+    margin-top: 8px;
+    color: #6D2E2C;
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: 0.9em;
+}
+
+/* Para el nuevo selector de barbero en el header */
+.barber-selector {
+  background: transparent;
+  border: none;
+  font-size: 1.2em;
+  font-weight: 600;
+  font-family: 'Playfair Display', serif;
+  color: #2C2C2C;
+  cursor: pointer;
+  margin-bottom: 1em;
+}
+
+/* Hacemos que el título principal indique que se puede hacer clic */
+.header-title.clickable {
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.header-title.clickable:hover {
+  color: #6D2E2C; /* Color Burdeos al pasar el ratón */
+}
+
+/* El nuevo selector de barbero, camuflado para parecerse al título */
+.barber-selector-camouflaged {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border: none;
+  background-color: transparent;
+  
+  /* Hacemos que la fuente imite al H1 */
+  font-size: 2.5rem; /* Mismo tamaño que .header-title */
+  font-weight: 600;
+  font-family: 'Playfair Display', serif; /* Misma fuente */
+  color: #2C2C2C;
+  text-align: center;
+  cursor: pointer;
+}
+
+/* Contenedor del título/selector para asegurar que esté centrado */
+.barber-title-selector {
+  margin-bottom: 20px;
+}
+
+
+.fab-container {
+  position: fixed; /* Lo fijamos en la pantalla */
+  bottom: 80px;
+  right: 30px;
+  z-index: 900;
+}
+
+.fab {
+  width: 80px;
+  height: 80px;
+  background-color: #6D2E2C; /* Burdeos */
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease-in-out;
+  position: relative;
+  z-index: 2;
+}
+
+.fab:hover:not(:disabled) {
+  background-color: #2C2C2C; 
+  border: 2px solid #6D2E2C;   
+  transform: translateY(-10px) scale(1.1);/* Usando el Burdeos de tu guía de estilo al pasar el ratón */
+}
+
+.fab.open {
+  background-color: #2C2C2C; /* Un color oscuro para el botón de cerrar */
+  transform: rotate(225deg);
+}
+
+.fab-items {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.fab-item {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 50px;
+  height: 50px;
+  background-color: #4A5C3D; /* Verde Oliva */
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transform: scale(0);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.fab-item:hover {
+  opacity: 0.85;
+}
+
+
+
+/* Estilo para el barbero actualmente seleccionado */
+.fab-item.active {
+  background-color: #A93226; /* Un rojo para destacar */
+  border: 2px solid white;
+}
+
+/* En tu archivo CSS principal, por ejemplo: index.css */
+
+.create-event-container {
+  position: fixed;
+  bottom: 15px; /* Ajusta según la altura de tu cabecera */
+  right: 20px;
+  z-index: 5; /* Asegura que esté por encima de otros elementos */
+}
+
+.create-event-btn {
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: white;
+  background-color: #B89A6A; 
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.create-event-btn:hover:not(:disabled) {
+  background-color: #6D2E2C; /* Usando el Burdeos de tu guía de estilo al pasar el ratón */
+  transform: translateY(-2px);
+}
+
+.create-event-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+}

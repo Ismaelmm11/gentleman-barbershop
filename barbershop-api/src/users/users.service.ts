@@ -78,6 +78,12 @@ export class UsersService {
       hashedPassword = await bcrypt.hash(password, 10);
     }
 
+    const existingPhone = await this.findOneByPhone(createUserDto.telefono);
+    if (existingPhone) {
+        // Lanza un error 409 Conflict si el teléfono ya está en uso.
+        throw new ConflictException(`El número de teléfono '${createUserDto.telefono}' ya está registrado.`);
+    }
+
     // Kysely nos ofrece una forma muy elegante de manejar transacciones.
     const newUserId = await this.db.transaction().execute(async (trx) => {
       // 1. Insertar el usuario usando el objeto de transacción 'trx'.
@@ -135,28 +141,37 @@ export class UsersService {
    * @returns Un objeto con los datos, el total de resultados y la información de paginación.
    */
   async findAll(queryParams: FindAllUsersQueryDto) {
-    // Asignamos valores por defecto a los parámetros de paginación si no se proporcionan.
-    const { limit = 10, page = 1, nombre } = queryParams;
+    const { limit = 10, page = 1, searchTerm, rol } = queryParams; // Usamos searchTerm
     const offset = (page - 1) * limit;
 
-    // ----- Construcción de Consultas Dinámicas -----
-    // Usamos 'let' para poder modificar la consulta base añadiendo filtros.
-
-    // Consulta para obtener los datos paginados
     let dataQuery = this.db.selectFrom('usuario').selectAll();
+    let countQuery = this.db.selectFrom('usuario').select((eb) => eb.fn.countAll().as('total'));
 
-    // CORRECCIÓN: Usamos el Expression Builder (eb) de Kysely para construir
-    // la función de conteo de forma segura y tipada.
-    let countQuery = this.db
-      .selectFrom('usuario')
-      .select((eb) => eb.fn.countAll().as('total'));
+    // Si se proporciona un rol, hacemos un JOIN para filtrar
+    if (rol) {
+        dataQuery = dataQuery.innerJoin('perfil', 'perfil.id_usuario', 'usuario.id')
+            .where('perfil.tipo', '=', rol);
+        
+        countQuery = countQuery.innerJoin('perfil', 'perfil.id_usuario', 'usuario.id')
+            .where('perfil.tipo', '=', rol);
+    }
 
-    // Si se proporciona un filtro 'nombre', lo añadimos a AMBAS consultas.
-    // Esto es crucial para que el conteo total refleje los resultados filtrados.
-    if (nombre) {
-      const filter = `%${nombre}%`; // El '%' es un comodín para la cláusula LIKE de SQL.
-      dataQuery = dataQuery.where('nombre', 'like', filter);
-      countQuery = countQuery.where('nombre', 'like', filter);
+    // Si se proporciona un término de búsqueda, aplicamos el filtro a múltiples columnas
+    if (searchTerm) {
+        const filter = `%${searchTerm}%`;
+        
+        // Usamos un grupo de condiciones 'OR' para buscar en varios campos
+        dataQuery = dataQuery.where((eb) => eb.or([
+            eb('nombre', 'like', filter),
+            eb('apellidos', 'like', filter),
+            eb('telefono', 'like', filter)
+        ]));
+        
+        countQuery = countQuery.where((eb) => eb.or([
+            eb('nombre', 'like', filter),
+            eb('apellidos', 'like', filter),
+            eb('telefono', 'like', filter)
+        ]));
     }
 
     // Ejecutamos ambas consultas en paralelo para mayor eficiencia usando Promise.all.

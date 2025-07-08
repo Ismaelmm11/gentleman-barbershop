@@ -42,6 +42,7 @@ let AuthService = class AuthService {
         };
         return {
             access_token: this.jwtService.sign(payload),
+            user: user,
         };
     }
     async logout(token) {

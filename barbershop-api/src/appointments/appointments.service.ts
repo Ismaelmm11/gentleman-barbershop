@@ -8,6 +8,7 @@ import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { RequestReturningAppointmentDto } from './dto/request-returning-appointment.dto';
 import { RequestNewAppointmentDto } from './dto/request-new-appointment.dto';
 import { ConfirmAppointmentDto } from './dto/confirm-appointment.dto';
+import { FindAllAppointmentsQueryDto } from './dto/find-all-appointments-query.dto';
 import { ServicesService } from '../services/services.service';
 import { UsersService } from '../users/users.service';
 import { RecurringBlocksService } from '../recurring-blocks/recurring-blocks.service';
@@ -30,7 +31,7 @@ export class AppointmentsService {
   async createInternal(creatorId: number, createDto: CreateAppointmentDto) {
     await this.validateEntities(createDto);
 
-    const { endTime, finalPrice } = await this.calculatePriceAndDurationForStaff(createDto);
+    const { endTime, finalPrice } = await this.calculatePriceForStaff(createDto);
 
     // NOTA: No hay `checkAvailability` aquí. El personal puede sobreescribir el calendario.
 
@@ -50,7 +51,7 @@ export class AppointmentsService {
     return this.findOne(Number(result.insertId));
   }
 
-  
+
 
   // =======================================================================
   // === FLUJO PARA CLIENTES (CON VERIFICACIÓN OTP) ========================
@@ -84,41 +85,41 @@ export class AppointmentsService {
    */
   async confirmAppointment(confirmDto: ConfirmAppointmentDto) {
     const { id_cita_provisional, codigo } = confirmDto;
-    
+
     return this.db.transaction().execute(async (trx) => {
-        const otpRecord = await trx.selectFrom('otp_codes').selectAll().where('id_cita_provisional', '=', id_cita_provisional).executeTakeFirst();
-        
-        if (!otpRecord) throw new NotFoundException('Solicitud de cita no encontrada.');
-        if (otpRecord.codigo !== codigo) {
-            await trx.updateTable('otp_codes').set({ intentos: otpRecord.intentos + 1 }).where('id', '=', otpRecord.id).execute();
-            if (otpRecord.intentos >= 2) {
-                await trx.deleteFrom('otp_codes').where('id', '=', otpRecord.id).execute();
-                await trx.deleteFrom('cita').where('id', '=', id_cita_provisional).execute();
-                throw new UnauthorizedException('Código incorrecto. La solicitud ha sido cancelada por demasiados intentos.');
-            }
-            throw new UnauthorizedException('Código incorrecto.');
+      const otpRecord = await trx.selectFrom('otp_codes').selectAll().where('id_cita_provisional', '=', id_cita_provisional).executeTakeFirst();
+
+      if (!otpRecord) throw new NotFoundException('Solicitud de cita no encontrada.');
+      if (otpRecord.codigo !== codigo) {
+        await trx.updateTable('otp_codes').set({ intentos: otpRecord.intentos + 1 }).where('id', '=', otpRecord.id).execute();
+        if (otpRecord.intentos >= 2) {
+          await trx.deleteFrom('otp_codes').where('id', '=', otpRecord.id).execute();
+          await trx.deleteFrom('cita').where('id', '=', id_cita_provisional).execute();
+          throw new UnauthorizedException('Código incorrecto. La solicitud ha sido cancelada por demasiados intentos.');
         }
-        if (new Date() > otpRecord.fecha_expiracion) throw new UnauthorizedException('El código ha expirado.');
+        throw new UnauthorizedException('Código incorrecto.');
+      }
+      if (new Date() > otpRecord.fecha_expiracion) throw new UnauthorizedException('El código ha expirado.');
 
-        // Si el OTP tenía datos de un nuevo cliente, lo creamos AHORA.
-        if (otpRecord.datos_cliente_json) {
-            const clientData = JSON.parse(otpRecord.datos_cliente_json);
-            const newUser = await this.usersService.create(clientData);
-            // Actualizamos la cita provisional para enlazarla al nuevo usuario.
-            await trx.updateTable('cita').set({ id_cliente: newUser.id }).where('id', '=', id_cita_provisional).execute();
-        }
+      // Si el OTP tenía datos de un nuevo cliente, lo creamos AHORA.
+      if (otpRecord.datos_cliente_json) {
+        const clientData = JSON.parse(otpRecord.datos_cliente_json);
+        const newUser = await this.usersService.create(clientData);
+        // Actualizamos la cita provisional para enlazarla al nuevo usuario.
+        await trx.updateTable('cita').set({ id_cliente: newUser.id }).where('id', '=', id_cita_provisional).execute();
+      }
 
-        const result = await trx.updateTable('cita').set({ estado: 'PENDIENTE' }).where('id', '=', id_cita_provisional).where('estado', '=', 'PENDIENTE_CONFIRMACION').executeTakeFirst();
+      const result = await trx.updateTable('cita').set({ estado: 'PENDIENTE' }).where('id', '=', id_cita_provisional).where('estado', '=', 'PENDIENTE_CONFIRMACION').executeTakeFirst();
 
-        if (result.numUpdatedRows === 0n) throw new ConflictException('Esta cita ya ha sido confirmada o cancelada.');
-        
-        await trx.deleteFrom('otp_codes').where('id', '=', otpRecord.id).execute();
-        return { message: 'Cita confirmada correctamente.' };
+      if (result.numUpdatedRows === 0n) throw new ConflictException('Esta cita ya ha sido confirmada o cancelada.');
+
+      await trx.deleteFrom('otp_codes').where('id', '=', otpRecord.id).execute();
+      return { message: 'Cita confirmada correctamente.' };
     });
   }
 
 
-// ===============================================================
+  // ===============================================================
   // === MÉTODOS DE GESTIÓN Y HELPERS ==============================
   // ===============================================================
 
@@ -135,7 +136,7 @@ export class AppointmentsService {
 
     return this.db.transaction().execute(async (trx) => {
       const endTime = new Date(new Date(requestDto.fecha_hora_inicio).getTime() + 30 * 60000);
-      
+
       const provisionalAppointmentResult = await trx
         .insertInto('cita')
         .values({
@@ -148,7 +149,7 @@ export class AppointmentsService {
           precio_final: service.precio_base,
         })
         .executeTakeFirstOrThrow();
-      
+
       const provisionalAppointmentId = Number(provisionalAppointmentResult.insertId);
 
       const otpCode = randomInt(100000, 999999).toString();
@@ -172,7 +173,7 @@ export class AppointmentsService {
         fecha_expiracion: expirationDate,
         datos_cliente_json: newClientDataJson,
       }).execute();
-      
+
       await this.messagingService.sendOtp(
         requestDto.canal_contacto_cliente,
         `Tu código de confirmación para Gentleman Barbershop es: ${otpCode}`
@@ -190,8 +191,8 @@ export class AppointmentsService {
     if (dto.id_cliente) await this.usersService.findOne(dto.id_cliente);
     if (dto.id_servicio) await this.servicesService.findOne(dto.id_servicio);
   }
-  
-  private async calculatePriceAndDurationForStaff(dto: CreateAppointmentDto) {
+
+  private async calculatePriceForStaff(dto: CreateAppointmentDto) {
     const startTime = new Date(dto.fecha_hora_inicio);
     const endTime = new Date(dto.fecha_hora_fin);
     let finalPrice: number | null = null;
@@ -200,182 +201,77 @@ export class AppointmentsService {
     if (endTime <= startTime) {
       throw new BadRequestException('La hora de fin debe ser posterior a la hora de inicio.');
     }
-    
+
     // 2. Calcular el precio si se ha proporcionado un servicio.
     if (dto.id_servicio) {
-        const service = await this.servicesService.findOne(dto.id_servicio);
-        finalPrice = service.precio_base;
+      const service = await this.servicesService.findOne(dto.id_servicio);
+      finalPrice = service.precio_base;
     }
 
     return { endTime, finalPrice };
   }
-  
+
   private async checkAvailabilityForClient(barberoId: number, startTime: Date) {
-      const dayOfWeek = startTime.getDay() === 0 ? 7 : startTime.getDay();
-      const time = startTime.toTimeString().slice(0, 5);
-      const blocks = await this.recurringBlocksService.findAllForUser(barberoId);
-      const isBlockedByRecurrence = blocks.some(b => b.dia_semana === dayOfWeek && time >= b.hora_inicio && time < b.hora_fin);
+    const dayOfWeek = startTime.getDay() === 0 ? 7 : startTime.getDay();
+    const time = startTime.toTimeString().slice(0, 5);
+    const blocks = await this.recurringBlocksService.findAllForUser(barberoId);
+    const isBlockedByRecurrence = blocks.some(b => b.dia_semana === dayOfWeek && time >= b.hora_inicio && time < b.hora_fin);
 
-      if (isBlockedByRecurrence) {
-          throw new ConflictException('El horario no está disponible (descanso programado).');
-      }
+    if (isBlockedByRecurrence) {
+      throw new ConflictException('El horario no está disponible (descanso programado).');
+    }
 
-      const endTime = new Date(startTime.getTime() + 30 * 60000);
-      const existingAppointment = await this.db
-        .selectFrom('cita')
-        .select('id')
-        .where('id_barbero', '=', barberoId)
-        .where('estado', 'in', ['PENDIENTE_CONFIRMACION', 'PENDIENTE', 'CERRADO', 'DESCANSO'])
-        .where('fecha_hora_inicio', '<', endTime)
-        .where('fecha_hora_fin', '>', startTime)
-        .executeTakeFirst();
+    const endTime = new Date(startTime.getTime() + 30 * 60000);
+    const existingAppointment = await this.db
+      .selectFrom('cita')
+      .select('id')
+      .where('id_barbero', '=', barberoId)
+      .where('estado', 'in', ['PENDIENTE_CONFIRMACION', 'PENDIENTE', 'CERRADO', 'DESCANSO'])
+      .where('fecha_hora_inicio', '<', endTime)
+      .where('fecha_hora_fin', '>', startTime)
+      .executeTakeFirst();
 
-      if (existingAppointment) {
-          throw new ConflictException('El horario seleccionado ya no está disponible.');
-      }
+    if (existingAppointment) {
+      throw new ConflictException('El horario seleccionado ya no está disponible.');
+    }
   }
-
-  // /**
-  //  * Método principal para crear una cita. Actúa como un orquestador
-  //  * que llama a funciones privadas para validar, calcular y guardar.
-  //  */
-  // async create(
-  //   createAppointmentDto: CreateAppointmentDto,
-  //   creator?: { userId: number; rol: string },
-  // ) {
-  //   // 1. Validar TODA la lógica de negocio y permisos en un solo lugar.
-  //   await this.validateAppointmentCreation(createAppointmentDto, creator);
-
-  //   // 2. Calcular la hora de fin. Este método ahora asume que los permisos ya están validados.
-  //   const fecha_hora_fin = await this.calculateEndTime(createAppointmentDto);
-
-  //   // 3. Preparar el objeto final para la base de datos.
-  //   const dataToInsert = this.prepareAppointmentData(createAppointmentDto, fecha_hora_fin);
-
-  //   // 4. Insertar en la base de datos.
-  //   const result = await this.db.insertInto('cita').values(dataToInsert).executeTakeFirstOrThrow();
-  //   const newAppointmentId = Number(result.insertId);
-
-  //   // 5. Devolver la cita recién creada.
-  //   return this.findOne(newAppointmentId);
-  // }
-
-  // // --- MÉTODOS PRIVADOS DE AYUDA (HELPERS) ---
-
-  // /**
-  //  * NUEVO MÉTODO CENTRALIZADO: Valida todas las reglas de negocio y permisos ANTES de proceder.
-  //  * Es el único "guardia de seguridad" para la lógica de creación.
-  //  * @private
-  //  */
-  // private async validateAppointmentCreation(dto: CreateAppointmentDto, creator?: { rol: string }) {
-  //   // --- Validaciones de Existencia de Entidades ---
-  //   // 1. Validamos que el 'id_barbero' corresponda a un proveedor de servicios.
-  //   const barbero = await this.usersService.findOne(dto.id_barbero);
-  //   if (!['ADMIN', 'BARBERO'].includes(barbero.rol)) {
-  //     throw new BadRequestException('El ID de barbero proporcionado no existe.');
-  //   }
-
-  //   if (dto.estado === 'PENDIENTE') {
-  //     if (!dto.id_cliente || !dto.id_servicio) {
-  //       throw new BadRequestException('Las citas pendientes deben tener cliente y servicio.');
-  //     }
-  //     await this.usersService.findOne(dto.id_cliente);
-  //     await this.servicesService.findOne(dto.id_servicio);
-  //   }
-
-  //   const isAllowedToManage = creator && ['ADMIN', 'BARBERO'].includes(creator.rol);
-
-  //   // Regla 1: Para crear un DESCANSO, se necesita ser ADMIN, BARBERO o TATUADOR.
-  //   if (dto.estado === 'DESCANSO' && !isAllowedToManage) {
-  //     throw new ForbiddenException('No tienes permisos para crear un descanso.');
-  //   }
-
-  //   // Regla 2: Para establecer una fecha de fin MANUAL, se necesita ser ADMIN, BARBERO o TATUADOR.
-  //   if (dto.fecha_hora_fin && !isAllowedToManage) {
-  //     throw new ForbiddenException('No tienes permisos para establecer una hora de fin manual.');
-  //   }
-
-  //   // Si la persona que crea la cita NO es personal (es un cliente o no está logueada),
-  //   // entonces comprobamos si la hora choca con un descanso recurrente.
-  //   if (!isAllowedToManage) {
-  //     await this.checkAgainstRecurringBlocks(dto.id_barbero, new Date(dto.fecha_hora_inicio));
-  //   }
-  // }
-
-  // /**
-  //  * NUEVO HELPER: Comprueba si una hora de inicio de cita colisiona con un descanso recurrente.
-  //  */
-  // private async checkAgainstRecurringBlocks(barberoId: number, startTime: Date) {
-  //   // getDay() devuelve 0 para Domingo, 1 para Lunes, etc.
-  //   // Lo ajustamos a nuestro formato donde 7 es Domingo.
-  //   const dayOfWeek = startTime.getDay() === 0 ? 7 : startTime.getDay();
-
-  //   // Obtenemos la hora en formato HH:MM para poder compararla.
-  //   const time = startTime.toTimeString().slice(0, 5);
-
-  //   // Pedimos al RecurringBlocksService todos los descansos para ese barbero.
-  //   const blocks = await this.recurringBlocksService.findAllForUser(barberoId);
-
-  //   // Buscamos si alguno de los descansos de ese día de la semana contiene la hora de la cita.
-  //   const isBlocked = blocks.some(block => 
-  //       block.dia_semana === dayOfWeek &&
-  //       time >= block.hora_inicio &&
-  //       time < block.hora_fin
-  //   );
-
-  //   if (isBlocked) {
-  //       throw new ConflictException('El horario solicitado no está disponible debido a un descanso programado.');
-  //   }
-  // }
-
-  // /**
-  //  * MÉTODO SIMPLIFICADO: Ahora solo se preocupa del cálculo,
-  //  * asumiendo que los permisos ya fueron validados.
-  //  * @private
-  //  */
-  // private async calculateEndTime(dto: CreateAppointmentDto): Promise<Date> {
-  //   const fechaInicio = new Date(dto.fecha_hora_inicio);
-
-  //   if (dto.fecha_hora_fin) {
-  //     const fechaFinManual = new Date(dto.fecha_hora_fin);
-  //     if (fechaFinManual <= fechaInicio) {
-  //       throw new BadRequestException('La hora de fin debe ser posterior a la hora de inicio.');
-  //     }
-  //     return fechaFinManual;
-  //   }
-
-  //   if (dto.id_servicio) {
-  //     const servicio = await this.servicesService.findOne(dto.id_servicio);
-  //     return new Date(fechaInicio.getTime() + servicio.duracion_minutos * 60000);
-  //   }
-
-  //   // Duración por defecto para descansos si no se especifica una hora de fin manual.
-  //   return new Date(fechaInicio.getTime() + 30 * 60000);
-  // }
-
-  // /**
-  //  * Prepara el objeto de datos final y limpio para ser insertado en la base de datos.
-  //  * @private
-  //  */
-  // private prepareAppointmentData(dto: CreateAppointmentDto, fecha_hora_fin: Date) {
-  //   const fecha_hora_inicio = new Date(dto.fecha_hora_inicio);
-  //   return {
-  //     id_barbero: dto.id_barbero,
-  //     estado: dto.estado,
-  //     fecha_hora_inicio,
-  //     fecha_hora_fin,
-  //     precio_final: null,
-  //     id_cliente: dto.estado === 'PENDIENTE' ? dto.id_cliente : null,
-  //     id_servicio: dto.estado === 'PENDIENTE' ? dto.id_servicio : null,
-  //   };
-  // }
 
 
   /**
-   * Devuelve todas las citas. (Sin filtros por ahora).
+   * Devuelve todas las citas para un barbero dentro de un rango de fechas.
    */
-  async findAll() {
-    return this.db.selectFrom('cita').selectAll().execute();
+  async findAll(query: FindAllAppointmentsQueryDto) {
+    const { id_barbero, fecha_desde, fecha_hasta } = query;
+
+    const fechaHastaCompleta = new Date(fecha_hasta);
+    fechaHastaCompleta.setHours(23, 59, 59, 999);
+
+    return this.db
+      .selectFrom('cita')
+      // Unimos con la tabla de servicios para obtener el nombre del servicio
+      .leftJoin('servicio', 'servicio.id', 'cita.id_servicio')
+      // Unimos con la tabla de usuarios para obtener el nombre del cliente
+      .leftJoin('usuario as cliente', 'cliente.id', 'cita.id_cliente')
+      .select([
+        'cita.id',
+        'cita.id_barbero',
+        'cita.id_cliente',
+        'cita.id_servicio',
+        'cita.fecha_hora_inicio',
+        'cita.fecha_hora_fin',
+        'cita.precio_final',
+        'cita.estado',
+        // Seleccionamos el nombre del servicio y lo llamamos 'titulo'
+        'servicio.nombre as titulo',
+        // Seleccionamos el nombre y apellidos del cliente
+        'cliente.nombre as nombre_cliente',
+        'cliente.apellidos as apellidos_cliente'
+      ])
+      .where('cita.id_barbero', '=', Number(id_barbero))
+      .where('cita.fecha_hora_inicio', '>=', new Date(fecha_desde))
+      .where('cita.fecha_hora_inicio', '<=', fechaHastaCompleta)
+      .orderBy('cita.fecha_hora_inicio', 'asc')
+      .execute();
   }
 
   /**
@@ -397,13 +293,44 @@ export class AppointmentsService {
   /**
    * Actualiza el estado de una cita.
    */
-  async update(id: number, updateAppointmentDto: UpdateAppointmentDto) {
+  async update(id: number, updateDto: UpdateAppointmentDto) {
+    // Primero, nos aseguramos de que la cita exista
+    const appointment = await this.findOne(id);
+    if (!appointment) {
+      throw new NotFoundException(`Cita con ID ${id} no encontrada.`);
+    }
+
+    // Creamos un objeto que contendrá solo los campos a actualizar
+    const updatePayload: any = {};
+
+    // Añadimos los campos al payload solo si vienen en el DTO
+    if (updateDto.id_cliente) updatePayload.id_cliente = updateDto.id_cliente;
+    if (updateDto.id_servicio) updatePayload.id_servicio = updateDto.id_servicio;
+    if (updateDto.fecha_hora_inicio) updatePayload.fecha_hora_inicio = new Date(updateDto.fecha_hora_inicio);
+    if (updateDto.fecha_hora_fin) updatePayload.fecha_hora_fin = new Date(updateDto.fecha_hora_fin);
+    if (updateDto.estado) updatePayload.estado = updateDto.estado;
+    if (updateDto.precio_final !== undefined) updatePayload.precio_final = updateDto.precio_final;
+
+    // Lógica de negocio: si el nuevo estado es DESCANSO, borramos los datos de la cita
+    if (updateDto.estado === 'DESCANSO') {
+      updatePayload.id_cliente = null;
+      updatePayload.id_servicio = null;
+      updatePayload.precio_final = null;
+    }
+
+    // Si no hay nada que actualizar, devolvemos la cita actual
+    if (Object.keys(updatePayload).length === 0) {
+      return appointment;
+    }
+
+    // Ejecutamos la actualización en la base de datos
     await this.db
       .updateTable('cita')
-      .set({ estado: updateAppointmentDto.estado })
+      .set(updatePayload) // Kysely usará solo los campos que hay en updatePayload
       .where('id', '=', id)
-      .executeTakeFirstOrThrow();
+      .execute();
 
+    // Devolvemos la cita actualizada para confirmar los cambios
     return this.findOne(id);
   }
 

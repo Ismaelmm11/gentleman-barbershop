@@ -8,55 +8,55 @@ export declare class ProductsController {
     create(createProductDto: CreateProductDto): Promise<{
         media: {
             id: number;
-            id_producto: number;
             tipo: "IMAGEN" | "VIDEO";
             url: string;
             es_principal: boolean;
+            id_producto: number;
         }[];
-        id: number;
         nombre: string;
+        id: number;
         descripcion: string;
         precio: number;
-        id_categoria: number;
         id_marca: number;
+        id_categoria: number;
     }>;
     findAll(query: FindAllProductsQueryDto): Promise<{
-        id: number;
         nombre: string;
+        id: number;
         descripcion: string;
         precio: number;
-        id_categoria: number;
         id_marca: number;
+        id_categoria: number;
     }[]>;
     findOne(id: number): Promise<{
         media: {
             id: number;
-            id_producto: number;
             tipo: "IMAGEN" | "VIDEO";
             url: string;
             es_principal: boolean;
+            id_producto: number;
         }[];
-        id: number;
         nombre: string;
+        id: number;
         descripcion: string;
         precio: number;
-        id_categoria: number;
         id_marca: number;
+        id_categoria: number;
     }>;
     update(id: number, updateProductDto: UpdateProductDto): Promise<{
         media: {
             id: number;
-            id_producto: number;
             tipo: "IMAGEN" | "VIDEO";
             url: string;
             es_principal: boolean;
+            id_producto: number;
         }[];
-        id: number;
         nombre: string;
+        id: number;
         descripcion: string;
         precio: number;
-        id_categoria: number;
         id_marca: number;
+        id_categoria: number;
     }>;
     remove(id: number): Promise<{
         message: string;

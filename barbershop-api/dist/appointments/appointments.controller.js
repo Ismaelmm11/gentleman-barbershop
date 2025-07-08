@@ -20,6 +20,7 @@ const update_appointment_dto_1 = require("./dto/update-appointment.dto");
 const request_returning_appointment_dto_1 = require("./dto/request-returning-appointment.dto");
 const request_new_appointment_dto_1 = require("./dto/request-new-appointment.dto");
 const confirm_appointment_dto_1 = require("./dto/confirm-appointment.dto");
+const find_all_appointments_query_dto_1 = require("./dto/find-all-appointments-query.dto");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("../auth/guards/roles.guard");
 const public_decorator_1 = require("../auth/decorators/public.decorator");
@@ -42,8 +43,8 @@ let AppointmentsController = class AppointmentsController {
     createInternal(creator, createAppointmentDto) {
         return this.appointmentsService.createInternal(creator.userId, createAppointmentDto);
     }
-    findAll() {
-        return this.appointmentsService.findAll();
+    findAll(query) {
+        return this.appointmentsService.findAll(query);
     }
     findOne(id) {
         return this.appointmentsService.findOne(+id);
@@ -95,8 +96,9 @@ __decorate([
 __decorate([
     (0, common_1.Get)(),
     (0, roles_decorator_1.Roles)('ADMIN', 'BARBERO'),
+    __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [find_all_appointments_query_dto_1.FindAllAppointmentsQueryDto]),
     __metadata("design:returntype", void 0)
 ], AppointmentsController.prototype, "findAll", null);
 __decorate([

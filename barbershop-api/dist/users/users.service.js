@@ -49,6 +49,10 @@ let UsersService = class UsersService {
         if (password) {
             hashedPassword = await bcrypt.hash(password, 10);
         }
+        const existingPhone = await this.findOneByPhone(createUserDto.telefono);
+        if (existingPhone) {
+            throw new common_1.ConflictException(`El número de teléfono '${createUserDto.telefono}' ya está registrado.`);
+        }
         const newUserId = await this.db.transaction().execute(async (trx) => {
             const userResult = await trx
                 .insertInto('usuario')
@@ -86,16 +90,28 @@ let UsersService = class UsersService {
         return this.findOne(newUserId);
     }
     async findAll(queryParams) {
-        const { limit = 10, page = 1, nombre } = queryParams;
+        const { limit = 10, page = 1, searchTerm, rol } = queryParams;
         const offset = (page - 1) * limit;
         let dataQuery = this.db.selectFrom('usuario').selectAll();
-        let countQuery = this.db
-            .selectFrom('usuario')
-            .select((eb) => eb.fn.countAll().as('total'));
-        if (nombre) {
-            const filter = `%${nombre}%`;
-            dataQuery = dataQuery.where('nombre', 'like', filter);
-            countQuery = countQuery.where('nombre', 'like', filter);
+        let countQuery = this.db.selectFrom('usuario').select((eb) => eb.fn.countAll().as('total'));
+        if (rol) {
+            dataQuery = dataQuery.innerJoin('perfil', 'perfil.id_usuario', 'usuario.id')
+                .where('perfil.tipo', '=', rol);
+            countQuery = countQuery.innerJoin('perfil', 'perfil.id_usuario', 'usuario.id')
+                .where('perfil.tipo', '=', rol);
+        }
+        if (searchTerm) {
+            const filter = `%${searchTerm}%`;
+            dataQuery = dataQuery.where((eb) => eb.or([
+                eb('nombre', 'like', filter),
+                eb('apellidos', 'like', filter),
+                eb('telefono', 'like', filter)
+            ]));
+            countQuery = countQuery.where((eb) => eb.or([
+                eb('nombre', 'like', filter),
+                eb('apellidos', 'like', filter),
+                eb('telefono', 'like', filter)
+            ]));
         }
         const [users, countResult] = await Promise.all([
             dataQuery.limit(limit).offset(offset).execute(),

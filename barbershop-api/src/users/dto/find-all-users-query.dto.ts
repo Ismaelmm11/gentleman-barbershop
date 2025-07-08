@@ -1,5 +1,5 @@
 // barbershop-api/src/users/dto/find-all-users-query.dto.ts
-import { IsOptional, IsString, IsNumber, Min, IsPositive } from 'class-validator';
+import { IsOptional, IsString, IsEnum, IsNumber, Min, IsPositive } from 'class-validator';
 import { Type } from 'class-transformer';
 
 /**
@@ -8,11 +8,15 @@ import { Type } from 'class-transformer';
  */
 export class FindAllUsersQueryDto {
   /**
-   * Filtra los usuarios cuyo nombre contenga este texto.
+   * Filtra los usuarios cuyo nombre, apellidos o teléfono contengan este texto.
    */
   @IsOptional()
   @IsString()
-  nombre?: string;
+  searchTerm?: string;
+
+  @IsOptional()
+  @IsEnum(['ADMIN', 'BARBERO', 'TATUADOR', 'CLIENTE'])
+  rol?: 'ADMIN' | 'BARBERO' | 'TATUADOR' | 'CLIENTE';
 
   /**
    * Define cuántos resultados devolver por página.

@@ -36,7 +36,7 @@ let AppointmentsService = class AppointmentsService {
     }
     async createInternal(creatorId, createDto) {
         await this.validateEntities(createDto);
-        const { endTime, finalPrice } = await this.calculatePriceAndDurationForStaff(createDto);
+        const { endTime, finalPrice } = await this.calculatePriceForStaff(createDto);
         const result = await this.db
             .insertInto('cita')
             .values({
@@ -144,7 +144,7 @@ let AppointmentsService = class AppointmentsService {
         if (dto.id_servicio)
             await this.servicesService.findOne(dto.id_servicio);
     }
-    async calculatePriceAndDurationForStaff(dto) {
+    async calculatePriceForStaff(dto) {
         const startTime = new Date(dto.fecha_hora_inicio);
         const endTime = new Date(dto.fecha_hora_fin);
         let finalPrice = null;
@@ -178,8 +178,32 @@ let AppointmentsService = class AppointmentsService {
             throw new common_1.ConflictException('El horario seleccionado ya no está disponible.');
         }
     }
-    async findAll() {
-        return this.db.selectFrom('cita').selectAll().execute();
+    async findAll(query) {
+        const { id_barbero, fecha_desde, fecha_hasta } = query;
+        const fechaHastaCompleta = new Date(fecha_hasta);
+        fechaHastaCompleta.setHours(23, 59, 59, 999);
+        return this.db
+            .selectFrom('cita')
+            .leftJoin('servicio', 'servicio.id', 'cita.id_servicio')
+            .leftJoin('usuario as cliente', 'cliente.id', 'cita.id_cliente')
+            .select([
+            'cita.id',
+            'cita.id_barbero',
+            'cita.id_cliente',
+            'cita.id_servicio',
+            'cita.fecha_hora_inicio',
+            'cita.fecha_hora_fin',
+            'cita.precio_final',
+            'cita.estado',
+            'servicio.nombre as titulo',
+            'cliente.nombre as nombre_cliente',
+            'cliente.apellidos as apellidos_cliente'
+        ])
+            .where('cita.id_barbero', '=', Number(id_barbero))
+            .where('cita.fecha_hora_inicio', '>=', new Date(fecha_desde))
+            .where('cita.fecha_hora_inicio', '<=', fechaHastaCompleta)
+            .orderBy('cita.fecha_hora_inicio', 'asc')
+            .execute();
     }
     async findOne(id) {
         const appointment = await this.db
@@ -192,12 +216,37 @@ let AppointmentsService = class AppointmentsService {
         }
         return appointment;
     }
-    async update(id, updateAppointmentDto) {
+    async update(id, updateDto) {
+        const appointment = await this.findOne(id);
+        if (!appointment) {
+            throw new common_1.NotFoundException(`Cita con ID ${id} no encontrada.`);
+        }
+        const updatePayload = {};
+        if (updateDto.id_cliente)
+            updatePayload.id_cliente = updateDto.id_cliente;
+        if (updateDto.id_servicio)
+            updatePayload.id_servicio = updateDto.id_servicio;
+        if (updateDto.fecha_hora_inicio)
+            updatePayload.fecha_hora_inicio = new Date(updateDto.fecha_hora_inicio);
+        if (updateDto.fecha_hora_fin)
+            updatePayload.fecha_hora_fin = new Date(updateDto.fecha_hora_fin);
+        if (updateDto.estado)
+            updatePayload.estado = updateDto.estado;
+        if (updateDto.precio_final !== undefined)
+            updatePayload.precio_final = updateDto.precio_final;
+        if (updateDto.estado === 'DESCANSO') {
+            updatePayload.id_cliente = null;
+            updatePayload.id_servicio = null;
+            updatePayload.precio_final = null;
+        }
+        if (Object.keys(updatePayload).length === 0) {
+            return appointment;
+        }
         await this.db
             .updateTable('cita')
-            .set({ estado: updateAppointmentDto.estado })
+            .set(updatePayload)
             .where('id', '=', id)
-            .executeTakeFirstOrThrow();
+            .execute();
         return this.findOne(id);
     }
     async remove(id) {

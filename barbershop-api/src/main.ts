@@ -6,6 +6,8 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors();
+
   // Le decimos a nuestra aplicación que use un ValidationPipe de forma global.
   // Esto significa que TODAS las peticiones que lleguen a CUALQUIER controlador
   // pasarán por este pipe y serán validadas automáticamente.

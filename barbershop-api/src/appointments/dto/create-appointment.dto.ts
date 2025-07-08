@@ -1,6 +1,7 @@
 // barbershop-api/src/appointments/dto/create-appointment.dto.ts
-import { IsInt, IsPositive, IsDateString, IsOptional, IsEnum, ValidateIf, IsNotEmpty } from 'class-validator';
+import { IsInt, IsPositive, IsDateString, IsNumber, IsOptional, IsEnum, ValidateIf, IsNotEmpty, IsString } from 'class-validator';
 import { IsTimeIn5MinuteIntervals } from '../../common/decorators/time-validation.decorator';
+import { Type } from 'class-transformer';
 
 export class CreateAppointmentDto {
   @IsInt()
@@ -39,4 +40,15 @@ export class CreateAppointmentDto {
    */
   @IsEnum(['PENDIENTE', 'DESCANSO'])
   estado: 'PENDIENTE' | 'DESCANSO';
+
+  @ValidateIf((o) => o.estado === 'PENDIENTE')
+  @IsNotEmpty({ message: 'El id_servicio es obligatorio para las citas pendientes.' })
+  @IsNumber()
+  @IsPositive()
+  @Type(() => Number)
+  precio_final: number;
+
+  @IsOptional()
+  @IsString()
+  titulo: string;
 }

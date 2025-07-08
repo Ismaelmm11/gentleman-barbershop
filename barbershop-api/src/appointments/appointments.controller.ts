@@ -1,11 +1,12 @@
 // barbershop-api/src/appointments/appointments.controller.ts
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseIntPipe, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, HttpCode, HttpStatus } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { RequestReturningAppointmentDto } from './dto/request-returning-appointment.dto';
 import { RequestNewAppointmentDto } from './dto/request-new-appointment.dto';
 import { ConfirmAppointmentDto } from './dto/confirm-appointment.dto';
+import { FindAllAppointmentsQueryDto } from './dto/find-all-appointments-query.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Public } from '../auth/decorators/public.decorator';
@@ -92,9 +93,8 @@ export class AppointmentsController {
    */
   @Get()
   @Roles('ADMIN', 'BARBERO')
-  findAll() {
-    // En futuros hitos, este método aceptará filtros por fecha, barbero, etc.
-    return this.appointmentsService.findAll();
+  findAll(@Query() query: FindAllAppointmentsQueryDto) {
+    return this.appointmentsService.findAll(query);
   }
 
   /**

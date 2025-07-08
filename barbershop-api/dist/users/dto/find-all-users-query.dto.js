@@ -13,7 +13,8 @@ exports.FindAllUsersQueryDto = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
 class FindAllUsersQueryDto {
-    nombre;
+    searchTerm;
+    rol;
     limit;
     page;
 }
@@ -22,7 +23,12 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], FindAllUsersQueryDto.prototype, "nombre", void 0);
+], FindAllUsersQueryDto.prototype, "searchTerm", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsEnum)(['ADMIN', 'BARBERO', 'TATUADOR', 'CLIENTE']),
+    __metadata("design:type", String)
+], FindAllUsersQueryDto.prototype, "rol", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_transformer_1.Type)(() => Number),

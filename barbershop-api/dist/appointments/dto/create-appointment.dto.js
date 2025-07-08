@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateAppointmentDto = void 0;
 const class_validator_1 = require("class-validator");
 const time_validation_decorator_1 = require("../../common/decorators/time-validation.decorator");
+const class_transformer_1 = require("class-transformer");
 class CreateAppointmentDto {
     id_barbero;
     id_cliente;
@@ -19,6 +20,8 @@ class CreateAppointmentDto {
     fecha_hora_inicio;
     fecha_hora_fin;
     estado;
+    precio_final;
+    titulo;
 }
 exports.CreateAppointmentDto = CreateAppointmentDto;
 __decorate([
@@ -54,4 +57,17 @@ __decorate([
     (0, class_validator_1.IsEnum)(['PENDIENTE', 'DESCANSO']),
     __metadata("design:type", String)
 ], CreateAppointmentDto.prototype, "estado", void 0);
+__decorate([
+    (0, class_validator_1.ValidateIf)((o) => o.estado === 'PENDIENTE'),
+    (0, class_validator_1.IsNotEmpty)({ message: 'El id_servicio es obligatorio para las citas pendientes.' }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsPositive)(),
+    (0, class_transformer_1.Type)(() => Number),
+    __metadata("design:type", Number)
+], CreateAppointmentDto.prototype, "precio_final", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateAppointmentDto.prototype, "titulo", void 0);
 //# sourceMappingURL=create-appointment.dto.js.map

@@ -50,6 +50,7 @@ export class AuthService {
     // en el módulo, genera el token firmado y seguro.
     return {
       access_token: this.jwtService.sign(payload),
+      user: user,
     };
   }
 

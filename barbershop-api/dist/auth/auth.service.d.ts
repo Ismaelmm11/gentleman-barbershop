@@ -9,6 +9,16 @@ export declare class AuthService {
     constructor(usersService: UsersService, jwtService: JwtService, db: Kysely<DB>);
     login(username: string, pass: string): Promise<{
         access_token: string;
+        user: {
+            id: number;
+            nombre: string;
+            apellidos: string;
+            username: string | null;
+            password: string | null;
+            telefono: string;
+            fecha_nacimiento: Date;
+            rol: "ADMIN" | "BARBERO" | "TATUADOR" | "CLIENTE";
+        };
     }>;
     logout(token: string): Promise<{
         message: string;

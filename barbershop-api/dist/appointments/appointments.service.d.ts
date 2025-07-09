@@ -10,6 +10,7 @@ import { ServicesService } from '../services/services.service';
 import { UsersService } from '../users/users.service';
 import { RecurringBlocksService } from '../recurring-blocks/recurring-blocks.service';
 import { MessagingService } from 'src/messaging/messaging.service';
+import { FindAvailabilityQueryDto } from './dto/find-availability-query.dto';
 export declare class AppointmentsService {
     private readonly db;
     private readonly servicesService;
@@ -24,8 +25,8 @@ export declare class AppointmentsService {
         id_servicio: number | null;
         fecha_hora_inicio: Date;
         fecha_hora_fin: Date;
-        precio_final: number | null;
         estado: "PENDIENTE_CONFIRMACION" | "PENDIENTE" | "CERRADO" | "CANCELADO" | "DESCANSO";
+        precio_final: number | null;
     }>;
     requestForReturningClient(requestDto: RequestReturningAppointmentDto): Promise<{
         id_cita_provisional: number;
@@ -47,8 +48,8 @@ export declare class AppointmentsService {
         id_servicio: number | null;
         fecha_hora_inicio: Date;
         fecha_hora_fin: Date;
-        precio_final: number | null;
         estado: "PENDIENTE_CONFIRMACION" | "PENDIENTE" | "CERRADO" | "CANCELADO" | "DESCANSO";
+        precio_final: number | null;
         titulo: string | null;
         nombre_cliente: string | null;
         apellidos_cliente: string | null;
@@ -60,8 +61,11 @@ export declare class AppointmentsService {
         id_servicio: number | null;
         fecha_hora_inicio: Date;
         fecha_hora_fin: Date;
-        precio_final: number | null;
         estado: "PENDIENTE_CONFIRMACION" | "PENDIENTE" | "CERRADO" | "CANCELADO" | "DESCANSO";
+        precio_final: number | null;
+    }>;
+    getDailyAvailability(query: FindAvailabilityQueryDto): Promise<{
+        availableSlots: string[];
     }>;
     update(id: number, updateDto: UpdateAppointmentDto): Promise<{
         id: number;
@@ -70,8 +74,8 @@ export declare class AppointmentsService {
         id_servicio: number | null;
         fecha_hora_inicio: Date;
         fecha_hora_fin: Date;
-        precio_final: number | null;
         estado: "PENDIENTE_CONFIRMACION" | "PENDIENTE" | "CERRADO" | "CANCELADO" | "DESCANSO";
+        precio_final: number | null;
     }>;
     remove(id: number): Promise<{
         message: string;

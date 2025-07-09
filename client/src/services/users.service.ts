@@ -84,3 +84,19 @@ export const createClientService = async (token: string, clientData: CreateClien
     }
     return response.json();
 };
+
+
+export const getPublicBarbers = async () => {
+    const response = await fetch(`${API_URL}/users/barbers`, { // Llama al nuevo endpoint
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al obtener la lista de barberos.');
+    }
+    return response.json();
+};

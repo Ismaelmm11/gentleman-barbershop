@@ -26,6 +26,7 @@ const roles_guard_1 = require("../auth/guards/roles.guard");
 const public_decorator_1 = require("../auth/decorators/public.decorator");
 const roles_decorator_1 = require("../auth/decorators/roles.decorator");
 const get_user_decorator_1 = require("../auth/decorators/get-user.decorator");
+const find_availability_query_dto_1 = require("./dto/find-availability-query.dto");
 let AppointmentsController = class AppointmentsController {
     appointmentsService;
     constructor(appointmentsService) {
@@ -42,6 +43,9 @@ let AppointmentsController = class AppointmentsController {
     }
     createInternal(creator, createAppointmentDto) {
         return this.appointmentsService.createInternal(creator.userId, createAppointmentDto);
+    }
+    getAvailabilityForDay(query) {
+        return this.appointmentsService.getDailyAvailability(query);
     }
     findAll(query) {
         return this.appointmentsService.findAll(query);
@@ -93,6 +97,14 @@ __decorate([
     __metadata("design:paramtypes", [Object, create_appointment_dto_1.CreateAppointmentDto]),
     __metadata("design:returntype", void 0)
 ], AppointmentsController.prototype, "createInternal", null);
+__decorate([
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Get)('availability/day'),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [find_availability_query_dto_1.FindAvailabilityQueryDto]),
+    __metadata("design:returntype", void 0)
+], AppointmentsController.prototype, "getAvailabilityForDay", null);
 __decorate([
     (0, common_1.Get)(),
     (0, roles_decorator_1.Roles)('ADMIN', 'BARBERO'),

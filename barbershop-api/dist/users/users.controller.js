@@ -42,6 +42,9 @@ let UsersController = class UsersController {
     findAll(findAllUsersQueryDto) {
         return this.usersService.findAll(findAllUsersQueryDto);
     }
+    async findBarbersPublicly() {
+        return this.usersService.findAll({ rol: 'BARBERO' });
+    }
     findOne(id) {
         return this.usersService.findOne(+id);
     }
@@ -86,6 +89,13 @@ __decorate([
     __metadata("design:paramtypes", [find_all_users_query_dto_1.FindAllUsersQueryDto]),
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "findAll", null);
+__decorate([
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Get)('barbers'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "findBarbersPublicly", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),

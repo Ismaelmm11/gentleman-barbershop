@@ -12,6 +12,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { GetUser } from '../auth/decorators/get-user.decorator';
+import { FindAvailabilityQueryDto } from './dto/find-availability-query.dto';
 
 /**
  * @Controller('appointments') - Define esta clase como el controlador para la ruta base '/appointments'.
@@ -85,6 +86,13 @@ export class AppointmentsController {
   ) {
     return this.appointmentsService.createInternal(creator.userId, createAppointmentDto);
   }
+
+  @Public()
+  @Get('availability/day')
+  getAvailabilityForDay(@Query() query: FindAvailabilityQueryDto) {
+    return this.appointmentsService.getDailyAvailability(query);
+  }
+
 
   /**
    * Endpoint para obtener todas las citas (pensado para el calendario de gestión).

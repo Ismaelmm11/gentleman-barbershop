@@ -87,6 +87,14 @@ export class UsersController {
     return this.usersService.findAll(findAllUsersQueryDto);
   }
 
+  @Public() // ¡Esta ruta es pública!
+  @Get('barbers') // Una nueva ruta específica, por ejemplo, /users/barbers
+  async findBarbersPublicly() {
+    // Reutilizamos la lógica del servicio para obtener solo los barberos
+    // Podrías crear un método más específico en el servicio si solo quieres los datos mínimos
+    return this.usersService.findAll({ rol: 'BARBERO' });
+  }
+
   /**
    * Endpoint para obtener un usuario específico por su ID.
    * @Get(':id') - Mapea las peticiones GET a /users/:id (ej: /users/123).

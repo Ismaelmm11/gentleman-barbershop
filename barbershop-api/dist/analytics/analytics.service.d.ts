@@ -14,11 +14,11 @@ export declare class AnalyticsService {
     private formatGroupedStats;
     getClientRankings(queryDto: ClientAnalyticsQueryDto): Promise<{
         id_cliente: number;
-        nombre_completo_cliente: string;
         total_visitas: number;
         gasto_total: number;
+        fecha_ultima_visita: string;
+        nombre_completo_cliente: string;
         gasto_promedio_por_visita: number;
         fecha_primera_visita: string;
-        fecha_ultima_visita: string;
     }[]>;
 }

@@ -5,6 +5,7 @@ import { RequestReturningAppointmentDto } from './dto/request-returning-appointm
 import { RequestNewAppointmentDto } from './dto/request-new-appointment.dto';
 import { ConfirmAppointmentDto } from './dto/confirm-appointment.dto';
 import { FindAllAppointmentsQueryDto } from './dto/find-all-appointments-query.dto';
+import { FindAvailabilityQueryDto } from './dto/find-availability-query.dto';
 export declare class AppointmentsController {
     private readonly appointmentsService;
     constructor(appointmentsService: AppointmentsService);
@@ -26,8 +27,11 @@ export declare class AppointmentsController {
         id_servicio: number | null;
         fecha_hora_inicio: Date;
         fecha_hora_fin: Date;
-        precio_final: number | null;
         estado: "PENDIENTE_CONFIRMACION" | "PENDIENTE" | "CERRADO" | "CANCELADO" | "DESCANSO";
+        precio_final: number | null;
+    }>;
+    getAvailabilityForDay(query: FindAvailabilityQueryDto): Promise<{
+        availableSlots: string[];
     }>;
     findAll(query: FindAllAppointmentsQueryDto): Promise<{
         id: number;
@@ -36,8 +40,8 @@ export declare class AppointmentsController {
         id_servicio: number | null;
         fecha_hora_inicio: Date;
         fecha_hora_fin: Date;
-        precio_final: number | null;
         estado: "PENDIENTE_CONFIRMACION" | "PENDIENTE" | "CERRADO" | "CANCELADO" | "DESCANSO";
+        precio_final: number | null;
         titulo: string | null;
         nombre_cliente: string | null;
         apellidos_cliente: string | null;
@@ -49,8 +53,8 @@ export declare class AppointmentsController {
         id_servicio: number | null;
         fecha_hora_inicio: Date;
         fecha_hora_fin: Date;
-        precio_final: number | null;
         estado: "PENDIENTE_CONFIRMACION" | "PENDIENTE" | "CERRADO" | "CANCELADO" | "DESCANSO";
+        precio_final: number | null;
     }>;
     update(id: string, updateAppointmentDto: UpdateAppointmentDto): Promise<{
         id: number;
@@ -59,8 +63,8 @@ export declare class AppointmentsController {
         id_servicio: number | null;
         fecha_hora_inicio: Date;
         fecha_hora_fin: Date;
-        precio_final: number | null;
         estado: "PENDIENTE_CONFIRMACION" | "PENDIENTE" | "CERRADO" | "CANCELADO" | "DESCANSO";
+        precio_final: number | null;
     }>;
     remove(id: string): Promise<{
         message: string;

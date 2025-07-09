@@ -2,6 +2,7 @@
 import { Inject, Injectable, NotFoundException, ForbiddenException, BadRequestException, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { Kysely } from 'kysely';
 import { DB } from '../database/db.types';
+import { format, isSameDay, isBefore, startOfDay } from 'date-fns';
 import { DATABASE_TOKEN } from '../database/database.provider';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
@@ -14,6 +15,7 @@ import { UsersService } from '../users/users.service';
 import { RecurringBlocksService } from '../recurring-blocks/recurring-blocks.service';
 import { MessagingService } from 'src/messaging/messaging.service';
 import { randomInt } from 'crypto';
+import { FindAvailabilityQueryDto } from './dto/find-availability-query.dto';
 
 @Injectable()
 export class AppointmentsService {
@@ -289,6 +291,119 @@ export class AppointmentsService {
     }
     return appointment;
   }
+
+  // barbershop-api/src/appointments/appointments.service.ts
+
+  // ... (dentro de la clase AppointmentsService)
+
+  async getDailyAvailability(query: FindAvailabilityQueryDto) {
+    const { id_barbero, fecha } = query;
+    const barberoId = Number(id_barbero);
+    const targetDate = new Date(fecha);
+
+    // 1. Validar que la fecha no es en el pasado (solo día)
+    const todayStartOfDay = startOfDay(new Date());
+    if (isBefore(targetDate, todayStartOfDay)) {
+      return { availableSlots: [] };
+    }
+
+    // 2. Obtener todos los eventos y descansos de ese día para la verificación local
+    const startOfTargetDay = new Date(fecha);
+    startOfTargetDay.setHours(0, 0, 0, 0); // Inicio del día objetivo en UTC (o tu zona horaria si trabajas así)
+    const endOfTargetDay = new Date(fecha);
+    endOfTargetDay.setHours(23, 59, 59, 999); // Fin del día objetivo en UTC
+
+    const existingEvents = await this.db.selectFrom('cita')
+      .select(['fecha_hora_inicio', 'fecha_hora_fin'])
+      .where('id_barbero', '=', barberoId)
+      .where('estado', 'in', ['PENDIENTE_CONFIRMACION', 'PENDIENTE', 'CERRADO', 'DESCANSO'])
+      .where('fecha_hora_inicio', '<', endOfTargetDay) // Eventos que empiezan antes del fin del día objetivo
+      .where('fecha_hora_fin', '>', startOfTargetDay) // Y terminan después del inicio del día objetivo
+      .execute();
+
+    const dayOfWeek = targetDate.getDay() === 0 ? 7 : targetDate.getDay(); // Lunes=1, Domingo=7
+    const recurringBlocks = await this.recurringBlocksService.findAllForUser(barberoId);
+    const dailyRecurringBlocks = recurringBlocks.filter(b => b.dia_semana === dayOfWeek);
+
+    // 3. Generar y filtrar los huecos de 30 minutos
+    const availableSlots: string[] = [];
+    const openingTimeHour = 9; // 9:00
+    const closingTimeHourMorning = 14; // 14:00 (el slot de las 13:30 a 14:00 es el último)
+    const openingTimeHourAfternoon = 16; // 16:00
+    const closingTimeHourEvening = 21; // 21:00 (el slot de las 20:30 a 21:00 es el último)
+    const SLOT_DURATION_MS = 30 * 60000;
+
+    for (let hour = openingTimeHour; hour < closingTimeHourEvening; hour++) {
+      for (let minute = 0; minute < 60; minute += 30) {
+        // Ignorar horas fuera de los rangos definidos
+        if ((hour >= closingTimeHourMorning && hour < openingTimeHourAfternoon) || // Pausa de 14:00 a 16:00
+            (hour >= closingTimeHourEvening && minute >= 0)) { // Después de las 21:00
+              continue;
+        }
+
+        const slotStart = new Date(targetDate); // Usar la fecha objetivo
+        slotStart.setHours(hour, minute, 0, 0); // Establecer la hora para el slot
+        const slotEnd = new Date(slotStart.getTime() + SLOT_DURATION_MS);
+
+        // Si el slot termina más allá del horario de cierre (ej: 21:00), no lo consideramos
+        if (slotEnd.getHours() > closingTimeHourEvening || (slotEnd.getHours() === closingTimeHourEvening && slotEnd.getMinutes() > 0)) {
+            continue;
+        }
+
+        let isBlocked = false;
+
+        // Comprobar si el slot propuesto está en el pasado (solo para el día actual)
+        if (isSameDay(targetDate, new Date())) {
+          const now = new Date();
+          // Si el slot finaliza antes de la hora actual, está bloqueado
+          if (slotEnd.getTime() <= now.getTime()) {
+            isBlocked = true;
+          }
+        }
+        if (isBlocked) continue; // Si ya está bloqueado por ser pasado, saltar
+
+        // vs. eventos existentes (citas y descansos únicos)
+        for (const event of existingEvents) {
+          // El slot se solapa si (slotStart < eventEnd && eventStart < slotEnd)
+          if (slotStart.getTime() < event.fecha_hora_fin.getTime() && event.fecha_hora_inicio.getTime() < slotEnd.getTime()) {
+            isBlocked = true;
+            break;
+          }
+        }
+        if (isBlocked) continue;
+
+        // vs. descansos recurrentes
+        const slotStartTimeString = format(slotStart, 'HH:mm');
+        const slotEndTimeString = format(slotEnd, 'HH:mm'); // Hora de fin del slot para comparar
+
+        for (const block of dailyRecurringBlocks) {
+          const blockStart = block.hora_inicio;
+          const blockEnd = block.hora_fin;
+
+          // Solapamiento más estricto:
+          // El slot propuesto se solapa con un bloque recurrente si:
+          // 1. El inicio del slot está dentro del bloque
+          // 2. El fin del slot está dentro del bloque
+          // 3. El bloque envuelve completamente el slot
+          if (
+              (slotStartTimeString >= blockStart && slotStartTimeString < blockEnd) ||
+              (slotEndTimeString > blockStart && slotEndTimeString <= blockEnd) ||
+              (slotStartTimeString <= blockStart && slotEndTimeString >= blockEnd)
+          ) {
+            isBlocked = true;
+            break;
+          }
+        }
+        if (isBlocked) continue;
+
+        // Si no está bloqueado por nada, añadir el slot
+        availableSlots.push(format(slotStart, 'HH:mm'));
+      }
+    }
+
+    return { availableSlots };
+  }
+
 
   /**
    * Actualiza el estado de una cita.

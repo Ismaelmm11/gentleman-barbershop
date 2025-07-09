@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppointmentsService = void 0;
 const common_1 = require("@nestjs/common");
 const kysely_1 = require("kysely");
+const date_fns_1 = require("date-fns");
 const database_provider_1 = require("../database/database.provider");
 const services_service_1 = require("../services/services.service");
 const users_service_1 = require("../users/users.service");
@@ -215,6 +216,82 @@ let AppointmentsService = class AppointmentsService {
             throw new common_1.NotFoundException(`Cita con ID ${id} no encontrada.`);
         }
         return appointment;
+    }
+    async getDailyAvailability(query) {
+        const { id_barbero, fecha } = query;
+        const barberoId = Number(id_barbero);
+        const targetDate = new Date(fecha);
+        const todayStartOfDay = (0, date_fns_1.startOfDay)(new Date());
+        if ((0, date_fns_1.isBefore)(targetDate, todayStartOfDay)) {
+            return { availableSlots: [] };
+        }
+        const startOfTargetDay = new Date(fecha);
+        startOfTargetDay.setHours(0, 0, 0, 0);
+        const endOfTargetDay = new Date(fecha);
+        endOfTargetDay.setHours(23, 59, 59, 999);
+        const existingEvents = await this.db.selectFrom('cita')
+            .select(['fecha_hora_inicio', 'fecha_hora_fin'])
+            .where('id_barbero', '=', barberoId)
+            .where('estado', 'in', ['PENDIENTE_CONFIRMACION', 'PENDIENTE', 'CERRADO', 'DESCANSO'])
+            .where('fecha_hora_inicio', '<', endOfTargetDay)
+            .where('fecha_hora_fin', '>', startOfTargetDay)
+            .execute();
+        const dayOfWeek = targetDate.getDay() === 0 ? 7 : targetDate.getDay();
+        const recurringBlocks = await this.recurringBlocksService.findAllForUser(barberoId);
+        const dailyRecurringBlocks = recurringBlocks.filter(b => b.dia_semana === dayOfWeek);
+        const availableSlots = [];
+        const openingTimeHour = 9;
+        const closingTimeHourMorning = 14;
+        const openingTimeHourAfternoon = 16;
+        const closingTimeHourEvening = 21;
+        const SLOT_DURATION_MS = 30 * 60000;
+        for (let hour = openingTimeHour; hour < closingTimeHourEvening; hour++) {
+            for (let minute = 0; minute < 60; minute += 30) {
+                if ((hour >= closingTimeHourMorning && hour < openingTimeHourAfternoon) ||
+                    (hour >= closingTimeHourEvening && minute >= 0)) {
+                    continue;
+                }
+                const slotStart = new Date(targetDate);
+                slotStart.setHours(hour, minute, 0, 0);
+                const slotEnd = new Date(slotStart.getTime() + SLOT_DURATION_MS);
+                if (slotEnd.getHours() > closingTimeHourEvening || (slotEnd.getHours() === closingTimeHourEvening && slotEnd.getMinutes() > 0)) {
+                    continue;
+                }
+                let isBlocked = false;
+                if ((0, date_fns_1.isSameDay)(targetDate, new Date())) {
+                    const now = new Date();
+                    if (slotEnd.getTime() <= now.getTime()) {
+                        isBlocked = true;
+                    }
+                }
+                if (isBlocked)
+                    continue;
+                for (const event of existingEvents) {
+                    if (slotStart.getTime() < event.fecha_hora_fin.getTime() && event.fecha_hora_inicio.getTime() < slotEnd.getTime()) {
+                        isBlocked = true;
+                        break;
+                    }
+                }
+                if (isBlocked)
+                    continue;
+                const slotStartTimeString = (0, date_fns_1.format)(slotStart, 'HH:mm');
+                const slotEndTimeString = (0, date_fns_1.format)(slotEnd, 'HH:mm');
+                for (const block of dailyRecurringBlocks) {
+                    const blockStart = block.hora_inicio;
+                    const blockEnd = block.hora_fin;
+                    if ((slotStartTimeString >= blockStart && slotStartTimeString < blockEnd) ||
+                        (slotEndTimeString > blockStart && slotEndTimeString <= blockEnd) ||
+                        (slotStartTimeString <= blockStart && slotEndTimeString >= blockEnd)) {
+                        isBlocked = true;
+                        break;
+                    }
+                }
+                if (isBlocked)
+                    continue;
+                availableSlots.push((0, date_fns_1.format)(slotStart, 'HH:mm'));
+            }
+        }
+        return { availableSlots };
     }
     async update(id, updateDto) {
         const appointment = await this.findOne(id);

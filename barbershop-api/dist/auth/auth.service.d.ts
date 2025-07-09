@@ -10,13 +10,13 @@ export declare class AuthService {
     login(username: string, pass: string): Promise<{
         access_token: string;
         user: {
-            id: number;
+            password: string | null;
             nombre: string;
             apellidos: string;
-            username: string | null;
-            password: string | null;
             telefono: string;
             fecha_nacimiento: Date;
+            username: string | null;
+            id: number;
             rol: "ADMIN" | "BARBERO" | "TATUADOR" | "CLIENTE";
         };
     }>;

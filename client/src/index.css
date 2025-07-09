@@ -39,6 +39,7 @@ h1, h2, h3 {
 }
 
 .main-content {
+  margin-top: 20px;
   flex-grow: 1;
   width: 100%;
   padding: 2rem;
@@ -396,3 +397,864 @@ h1, h2, h3 {
 .fab-separator {
   height: 1px; background-color: var(--color-border); margin: 4px 0;
 }
+
+/* src/pages/appointments/appointments.css */
+
+.appointments-page {
+  /* Estilos generales para la página contenedora de los paneles */
+  padding: 2rem;
+  max-width: 800px; /* Ancho máximo para el contenido de los paneles */
+  margin: 2em auto;
+  background-color: var(--color-white); /* Fondo blanco para el "panel" principal */
+  border-radius: 8px; /* Bordes redondeados */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombra sutil para darle profundidad */
+}
+
+/* Título de la página de reservar cita */
+.appointments-page .analytics-title {
+  text-align: center;
+  font-size: 2.2rem; /* Un poco más grande que el título de analíticas */
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 2.5rem; /* Más espacio debajo del título */
+}
+
+.selection-panel {
+  padding: 2rem; /* Aumenta el padding interno del panel */
+  border: 1px solid var(--color-border); /* Borde suave */
+  border-radius: 8px; /* Bordes redondeados */
+  background-color: var(--color-background); /* Fondo secundario más suave para el panel interior */
+}
+
+.selection-panel h2 {
+  text-align: center;
+  font-family: var(--font-heading); /* Usa la fuente de títulos */
+  color: var(--color-text); /* Color de texto más oscuro */
+  margin-bottom: 2rem; /* Espacio debajo del subtítulo del panel */
+  font-size: 1.8rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem; /* Más espacio entre grupos de formulario */
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.6rem; /* Espacio entre etiqueta y campo */
+  font-weight: 600; /* Texto de etiqueta un poco más grueso */
+  color: var(--color-text);
+  font-size: 1.05rem;
+}
+
+.select-input,
+.text-input {
+  width: 100%;
+  padding: 0.85rem; /* Un poco más de padding */
+  border: 1px solid var(--color-border);
+  border-radius: 6px; /* Bordes ligeramente más redondeados */
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--color-text);
+  background-color: var(--color-white);
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s; /* Transición para el efecto de enfoque */
+}
+
+.select-input:focus,
+.text-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(109, 46, 44, 0.3); /* Sombra al enfocar más pronunciada */
+}
+
+.button-primary {
+  display: block;
+  width: 100%;
+  padding: 1rem 1.5rem; /* Más padding para que el botón sea más alto */
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: 6px; /* Bordes redondeados para el botón */
+  font-size: 1.2rem; /* Fuente más grande en el botón */
+  font-weight: 700; /* Texto del botón más grueso */
+  cursor: pointer;
+  transition: all 0.4s ease-in-out; /* Efecto al pasar el ratón */
+  margin-top: 2.5rem; /* Más espacio encima del botón */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); /* Sombra para el botón */
+}
+
+.button-primary:hover {
+  background-color: transparent; 
+  color: #6D2E2C;
+  border: 2px solid #6D2E2C;/* Un tono un poco más oscuro de burdeos al pasar el ratón */
+  transform: scale(0.95); /* Pequeño efecto de elevación */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.error-message {
+  color: #d32f2f; /* Rojo estándar para errores */
+  font-size: 0.95rem;
+  margin-top: 1rem;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Estilos para el spinner de carga (ya deberían estar en index.css o global) */
+.loading-spinner, .error-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  font-size: 1.3rem; /* Un poco más grande para el mensaje de carga */
+  color: #888;
+}
+
+/* Media Queries para adaptabilidad (opcional pero recomendado) */
+@media (max-width: 768px) {
+  .appointments-page {
+    padding: 1rem;
+    margin: 1rem auto;
+  }
+
+  .appointments-page .analytics-title {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+  }
+
+  .selection-panel {
+    padding: 1.5rem;
+  }
+
+  .selection-panel h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .button-primary {
+    padding: 0.8rem 1.2rem;
+    font-size: 1rem;
+    margin-top: 2rem;
+  }
+}
+
+.rdp {
+  --rdp-cell-size: 40px; /* Tamaño de las celdas del calendario */
+  --rdp-accent-color: var(--color-primary); /* Color principal para la selección del día */
+  --rdp-background-color: #e0e0e03b; /* Fondo sutil para días inactivos/fuera de mes */
+  font-family: var(--font-body);
+  /* Centrar el calendario si está solo en su contenedor */
+  margin: 0 auto;
+}
+
+.rdp-root {
+  display: flex;
+  justify-content: center;
+}
+
+.rdp-head_cell {
+  font-weight: 600;
+  color: var(--color-text); /* Color de los nombres de los días */
+}
+
+/* Estilo para los días deshabilitados (pasados) */
+.rdp-button[disabled] {
+  color: #a0a0a0; /* Color más claro para días deshabilitados */
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Estilo para los días al pasar el ratón (no seleccionados y no deshabilitados) */
+.rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
+  background-color: var(--color-background); /* Fondo suave al pasar el ratón */
+}
+
+/* Estilo del día seleccionado */
+.rdp-day_selected {
+  background-color: var(--color-primary) !important; /* Asegura que el color primario se aplique */
+  color: var(--color-white) !important;
+  border-radius: 50%; /* Días redondos */
+}
+
+.rdp-selected .rdp-day_button {
+  border: 3px solid var(--color-primary) !important;
+}
+
+.rdp-today:not(.rdp-outside) {
+  color: var(--color-primary) !important;
+  font-weight: bold;
+}
+
+/* Navegación del mes (flechas y nombre del mes) */
+.rdp-caption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+  margin-bottom: 15px;
+}
+
+.rdp-caption_label {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-primary); /* Color del mes/año */
+}
+
+.rdp-nav_button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--color-primary);
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.rdp-nav_button:hover:not([disabled]) {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.rdp-nav_button[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+
+/* Contenedor de los huecos de tiempo */
+.time-slots-group {
+  margin-top: 2rem;
+}
+
+.time-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); /* Columnas responsivas */
+  gap: 10px; /* Espacio entre los botones de hora */
+  margin-top: 1rem;
+  justify-items: center; /* Centrar los items en la cuadrícula */
+}
+
+.time-slot-button {
+  width: 100%; /* Ocupar el ancho de la columna */
+  padding: 12px 0;
+  background-color: var(--color-white);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 8px; /* Bordes redondeados para los botones de hora */
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.time-slot-button:hover:not(.active) {
+  background-color: var(--color-background);
+  border-color: var(--color-primary);
+}
+
+.time-slot-button.active {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border-color: var(--color-primary);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.no-availability {
+  text-align: center;
+  color: #888;
+  font-style: italic;
+  margin-top: 1rem;
+}
+
+/* Spinner más pequeño para la carga de horas */
+.small-spinner {
+    height: 50px;
+    font-size: 1rem;
+}
+
+/* Acciones del formulario (botones Anterior/Siguiente) */
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 3rem; /* Espacio antes de los botones de acción */
+  gap: 1rem; /* Espacio entre botones */
+}
+
+.form-actions .button-primary,
+.form-actions .button-secondary {
+  width: 48%; /* Ocupan casi la mitad cada uno */
+  margin-top: 0; /* Anula el margen superior del .button-primary general */
+}
+
+.button-secondary {
+  background-color: var(--color-background);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease, border-color 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.button-secondary:hover {
+  background-color: #e0e0e0;
+  border-color: #c0c0c0;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Asegurar que las etiquetas del calendario y las horas se vean bien */
+.calendar-group label, .time-slots-group label {
+  text-align: center;
+  width: 100%;
+  margin-bottom: 1.5rem;
+  font-size: 1.3rem; /* Un poco más grande para el título de la sección */
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+}
+
+/* Asegurarse de que el spinner de carga para las horas sea más pequeño y centrado */
+.time-slots-group .loading-spinner {
+    height: 100px; /* Altura reducida */
+    font-size: 1rem;
+}
+
+/* Responsividad general */
+@media (max-width: 600px) {
+    .time-slots-grid {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    }
+    .form-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    .form-actions .button-primary,
+    .form-actions .button-secondary {
+        width: 100%;
+        margin-bottom: 0.75rem;
+    }
+}
+
+/* Estilos generales para la página contenedora de los paneles */
+.appointments-page {
+  padding: 2rem;
+  margin-top: 20px !important;
+  max-width: 800px; /* Ancho máximo para el contenido de los paneles */
+  background-color: var(--color-white); /* Fondo blanco para el "panel" principal */
+  border-radius: 8px; /* Bordes redondeados */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombra sutil para darle profundidad */
+}
+
+/* Título de la página de reservar cita */
+.appointments-page .analytics-title {
+  text-align: center;
+  font-size: 2.2rem; /* Un poco más grande que el título de analíticas */
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 2.5rem; /* Más espacio debajo del título */
+}
+
+/* Estilo para cada panel individual (Paso 1, Paso 2, Paso 3) */
+.selection-panel {
+  padding: 2rem; /* Aumenta el padding interno del panel */
+  border: 1px solid var(--color-border); /* Borde suave */
+  border-radius: 8px; /* Bordes redondeados */
+  background-color: var(--color-background); /* Fondo secundario más suave para el panel interior */
+}
+
+.selection-panel h2 {
+  text-align: center;
+  font-family: var(--font-heading); /* Usa la fuente de títulos */
+  color: var(--color-text); /* Color de texto más oscuro */
+  margin-bottom: 2rem; /* Espacio debajo del subtítulo del panel */
+  font-size: 1.8rem;
+}
+
+/* Grupo de formulario (etiqueta + campo) */
+.form-group {
+  margin-bottom: 1.5rem; /* Más espacio entre grupos de formulario */
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.6rem; /* Espacio entre etiqueta y campo */
+  font-weight: 600; /* Texto de etiqueta un poco más grueso */
+  color: var(--color-text);
+  font-size: 1.05rem;
+}
+
+/* Estilos para los campos select y text input */
+.select-input,
+.text-input {
+  width: 100%;
+  padding: 0.85rem; /* Un poco más de padding */
+  border: 1px solid var(--color-border);
+  border-radius: 6px; /* Bordes ligeramente más redondeados */
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--color-text);
+  background-color: var(--color-white);
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s; /* Transición para el efecto de enfoque */
+}
+
+.select-input:focus,
+.text-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(109, 46, 44, 0.3); /* Sombra al enfocar más pronunciada */
+}
+
+/* Botón principal (Siguiente, Guardar) */
+.button-primary {
+  display: block;
+  width: 100%;
+  padding: 1rem 1.5rem; /* Más padding para que el botón sea más alto */
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: 6px; /* Bordes redondeados para el botón */
+  font-size: 1.2rem; /* Fuente más grande en el botón */
+  font-weight: 700; /* Texto del botón más grueso */
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease; /* Efecto al pasar el ratón */
+  margin-top: 2.5rem; /* Más espacio encima del botón */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); /* Sombra para el botón */
+}
+
+.button-primary:hover {
+  background-color: #5a2523; /* Un tono un poco más oscuro de burdeos al pasar el ratón */
+  transform: translateY(-2px); /* Pequeño efecto de elevación */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.button-primary:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+
+/* Mensajes de error */
+.error-message {
+  color: #d32f2f; /* Rojo estándar para errores */
+  font-size: 0.95rem;
+  margin-top: 1rem;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Spinner de carga y mensajes de error generales */
+.loading-spinner, .error-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  font-size: 1.3rem; /* Un poco más grande para el mensaje de carga */
+  color: #888;
+}
+
+/* ----------------------------------------------------------- */
+/* --- Estilos ESPECÍFICOS para AppointmentTimeSelectionPanel --- */
+/* ----------------------------------------------------------- */
+
+/* Contenedor del calendario */
+.calendar-group {
+  text-align: center; /* Centrar el calendario dentro de su grupo */
+}
+
+.calendar-group label {
+  font-size: 1.3rem; /* Título para la sección de calendario */
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  margin-bottom: 1.5rem;
+}
+
+/* Estilos para el calendario (react-day-picker) */
+.rdp {
+  --rdp-cell-size: 48px; /* Haz las celdas un poco más grandes para mayor comodidad táctil, similar a la imagen */
+  --rdp-accent-color: var(--color-primary); /* Color principal para la selección del día */
+  --rdp-background-color: var(--color-background); /* Fondo suave para días del calendario */
+  font-family: var(--font-body);
+  margin: 0 auto; /* Centrar el calendario */
+  padding: 10px; /* Un poco de padding alrededor del calendario */
+  background-color: var(--color-white); /* Fondo del "cuerpo" del calendario */
+  border-radius: 8px; /* Bordes redondeados para el calendario */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* Sombra ligera */
+}
+
+/* Título del mes/año en el calendario */
+.rdp-caption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+  margin-bottom: 15px; /* Espacio entre el título y los días */
+}
+
+.rdp-caption_label {
+  font-size: 1.3rem; /* Un poco más grande y prominente */
+  font-weight: 700;
+  color: var(--color-primary); /* Color burdeos para el mes */
+  font-family: var(--font-heading); /* Fuente de encabezado para el mes */
+  letter-spacing: 1px;
+}
+
+/* Botones de navegación (flechas) */
+.rdp-nav_button {
+  background: none;
+  border: none;
+  font-size: 1.8rem; /* Flechas más grandes */
+  color: var(--color-primary);
+  cursor: pointer;
+  padding: 8px; /* Más padding para que sean más fáciles de pulsar */
+  border-radius: 50%; /* Redondos */
+  transition: background-color 0.2s, color 0.2s, transform 0.1s;
+}
+
+.rdp-nav_button:hover:not([disabled]) {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  transform: scale(1.1); /* Efecto de zoom sutil */
+}
+
+.rdp-nav_button[disabled] {
+  opacity: 0.3; /* Menos opacidad para deshabilitados */
+  cursor: not-allowed;
+}
+
+/* Nombres de los días de la semana (Lu, Ma, Mi...) */
+.rdp-head_cell {
+  font-weight: 700; /* Más grueso */
+  color: var(--color-text); /* Color de texto oscuro */
+  font-size: 0.95rem; /* Tamaño de fuente ligeramente más pequeño */
+}
+
+/* Estilo para los botones de los días */
+.rdp-button {
+  font-size: 1.1rem; /* Números de día más grandes */
+  width: var(--rdp-cell-size);
+  height: var(--rdp-cell-size);
+  border-radius: 50%; /* Días redondos, como en la imagen */
+  border: 1px solid transparent; /* Borde transparente por defecto */
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+/* Estilo para los días deshabilitados (pasados o no seleccionables) */
+.rdp-button[disabled] {
+  color: #a0a0a0; /* Color más claro para días deshabilitados */
+  cursor: not-allowed;
+  opacity: 0.5; /* Menos opacidad */
+  background-color: #f0f0f0; /* Fondo ligeramente gris para deshabilitados */
+}
+
+/* Estilo de los días al pasar el ratón (no seleccionados y no deshabilitados) */
+.rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
+  background-color: var(--color-background); /* Fondo suave al pasar el ratón */
+  border-color: var(--color-border); /* Borde sutil */
+}
+
+/* Estilo del día seleccionado */
+.rdp-day_selected {
+  background-color: var(--color-primary) !important; /* Asegura el color primario */
+  color: var(--color-white) !important; /* Texto blanco */
+  font-weight: 700; /* Negrita */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Sombra para el día seleccionado */
+  border: 1px solid var(--color-primary) !important;
+}
+
+/* Contenedor de los huecos de tiempo */
+.time-slots-group {
+  margin-top: 2.5rem; /* Espacio entre el calendario y las horas */
+  text-align: center; /* Centrar los elementos del grupo de horas */
+}
+
+.time-slots-group label {
+  font-size: 1.3rem; /* Título para la sección de horas */
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  margin-bottom: 1.5rem;
+}
+
+.time-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); /* Columnas responsivas */
+  gap: 15px; /* Mayor espacio entre los botones de hora */
+  margin-top: 1rem;
+  padding: 0 10px; /* Pequeño padding lateral */
+}
+
+.time-slot-button {
+  width: 100%; /* Ocupar el ancho de la columna */
+  padding: 15px 0; /* Más padding para hacerlos más grandes */
+  background-color: var(--color-white);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 8px; /* Bordes redondeados para los botones de hora */
+  font-size: 1.1rem; /* Fuente más grande */
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.1s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08); /* Sombra sutil */
+}
+
+.time-slot-button:hover:not(.active) {
+  background-color: var(--color-background);
+  border-color: var(--color-primary);
+  transform: translateY(-2px); /* Pequeño efecto de elevación */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.time-slot-button.active {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border-color: var(--color-primary);
+  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.25);
+  font-weight: 700;
+  transform: scale(1.02);
+}
+
+.no-availability {
+  text-align: center;
+  color: #888;
+  font-style: italic;
+  margin-top: 1.5rem;
+  font-size: 1.1rem;
+}
+
+/* Spinner más pequeño para la carga de horas */
+.small-spinner {
+    height: 80px; /* Altura ajustada */
+    font-size: 1.1rem;
+    color: var(--color-primary); /* Color del spinner */
+}
+
+/* Acciones del formulario (botones Anterior/Siguiente) */
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 3.5rem; /* Mayor espacio antes de los botones de acción */
+  gap: 1.5rem; /* Mayor espacio entre botones */
+}
+
+.form-actions .button-primary,
+.form-actions .button-secondary {
+  flex: 1; /* Para que ocupen el espacio disponible equitativamente */
+  margin-top: 0; /* Anula el margen superior del .button-primary general */
+}
+
+/* Botón secundario (Anterior) */
+.button-secondary {
+  background-color: var(--color-background);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  font-size: 1.15rem;
+  font-weight: 600;
+  padding: 0.9rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease, border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.button-secondary:hover {
+  background-color: #e0e0e0;
+  border-color: #c0c0c0;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsividad general para pantallas más pequeñas */
+@media (max-width: 768px) {
+  .appointments-page {
+    padding: 1rem;
+    margin: 1rem auto;
+  }
+
+  .appointments-page .analytics-title {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+  }
+
+  .selection-panel {
+    padding: 1.5rem;
+  }
+
+  .selection-panel h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Ajustes para DayPicker en móviles */
+  .rdp {
+    --rdp-cell-size: 44px; /* Un poco más pequeño para móviles */
+  }
+  .rdp-nav_button {
+    font-size: 1.5rem;
+    padding: 6px;
+  }
+  .rdp-caption_label {
+    font-size: 1.1rem;
+  }
+
+  .time-slots-grid {
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); /* Columnas más pequeñas */
+      gap: 10px;
+  }
+  .time-slot-button {
+      padding: 12px 0;
+      font-size: 1rem;
+  }
+
+  .form-actions {
+      flex-direction: column; /* Botones apilados en móviles */
+      align-items: stretch; /* Estirados para ocupar el ancho completo */
+      gap: 1rem;
+  }
+  .form-actions .button-primary,
+  .form-actions .button-secondary {
+      width: 100%; /* Ocupan todo el ancho */
+      margin-bottom: 0; /* Elimina margen entre ellos */
+  }
+}
+
+client-forms-container {
+  display: flex;
+  flex-wrap: wrap; /* Permite que los formularios se envuelvan en pantallas pequeñas */
+  gap: 2rem; /* Espacio entre los dos formularios */
+  justify-content: center; /* Centrar los formularios */
+}
+
+.client-form {
+  flex: 1; /* Permite que cada formulario ocupe el espacio disponible */
+  min-width: 300px; /* Ancho mínimo para cada formulario antes de envolverse */
+  padding: 1.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background-color: var(--color-white); /* Fondo blanco para los formularios individuales */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+}
+
+.client-form h3 {
+  text-align: center;
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+}
+
+/* Estilos para los inputs de fecha (date) */
+input[type="date"] {
+  /* Asegura que el input de fecha se vea bien */
+  appearance: none; /* Elimina estilos por defecto del navegador */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: var(--color-white);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  padding: 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(30%) sepia(100%) saturate(1000%) hue-rotate(330deg) brightness(90%) contrast(80%); /* Color del icono del calendario */
+  cursor: pointer;
+}
+
+
+
+/* Estilos para la sección de confirmación OTP */
+.otp-confirmation-section {
+  text-align: center;
+  padding: 2rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background-color: var(--color-white);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  max-width: 400px; /* Ancho más pequeño para el formulario OTP */
+  margin: 0 auto; /* Centrar el formulario OTP */
+}
+
+.otp-confirmation-section h3 {
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  margin-bottom: 1rem;
+  font-size: 1.6rem;
+}
+
+.otp-confirmation-section p {
+  color: var(--color-text);
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.otp-input {
+  font-size: 1.5rem; /* Código OTP más grande */
+  text-align: center;
+  letter-spacing: 5px; /* Espacio entre dígitos */
+  max-width: 200px; /* Ancho fijo para el input OTP */
+  margin: 0 auto; /* Centrar el input OTP */
+  display: block; /* Para que margin: auto funcione */
+}
+
+/* Estilo para el panel de éxito final */
+.success-panel {
+  text-align: center;
+  padding: 3rem;
+  background-color: var(--color-white);
+  color: var(--color-text);
+}
+
+.success-panel h2 {
+  color: var(--color-primary);
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.success-panel p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+}
+
+/* Ajustes para el botón "Anterior" cuando el OTP está activo */
+.form-actions .button-secondary[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+/* Media Queries para responsividad */
+@media (max-width: 768px) {
+  .client-forms-container {
+    flex-direction: column; /* Apilar formularios en pantallas pequeñas */
+    gap: 1.5rem;
+  }
+
+  .client-form {
+    min-width: unset; /* Eliminar ancho mínimo */
+    width: 100%; /* Ocupar todo el ancho disponible */
+  }
+
+  .otp-confirmation-section {
+    max-width: 100%;
+    padding: 1.5rem;
+  }
+
+  .otp-input {
+    max-width: 180px;
+  }
+}
+

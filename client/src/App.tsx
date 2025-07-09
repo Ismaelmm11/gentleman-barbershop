@@ -5,7 +5,9 @@ import { LoginPage } from './pages/LoginPage';
 import { useAuth } from './context/AuthContext';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 // Aquí solo necesitas importar la página principal de gestión
-import { ManagementPage } from './pages/ManagementPage'; 
+import { ManagementPage } from './pages/ManagementPage';
+// Importamos la nueva página de reserva de citas
+import { AppointmentsPage } from './pages/appointments/AppointmentsPage';
 
 // Estilos para la barra de navegación (sin cambios)
 const navStyles = {
@@ -38,12 +40,14 @@ function App() {
   return (
     <BrowserRouter>
       <nav style={navStyles.nav} className="border-b-4 border-red-500">
-            <div>
-                <Link to="/" style={navStyles.logo}>Gentleman Barbershop</Link>
-            </div>
+        <div>
+          <Link to="/" style={navStyles.logo}>Gentleman Barbershop</Link>
+        </div>
         <div>
           <Link to="/" style={navStyles.link}>Inicio</Link>
-          
+          {/* Añadimos el enlace a la página de reservar citas */}
+          <Link to="/reservar-cita" style={navStyles.link}>Reservar Cita</Link>
+
           {/* El enlace a /gestion ya es correcto */}
           {isAuthenticated && user && ['ADMIN', 'BARBERO', 'TATUADOR'].includes(user.rol) && (
             <Link to="/gestion" style={navStyles.link}>Gestión</Link>
@@ -56,6 +60,9 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
+
+        {/* Ruta para la página de reservar citas (PÚBLICA) */}
+        <Route path="/reservar-cita" element={<AppointmentsPage />} />
 
         {/* --- CORRECCIÓN --- */}
         {/* Esta es AHORA la ÚNICA ruta que necesitas para toda la sección */}

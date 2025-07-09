@@ -1,0 +1,128 @@
+/* --- Estilos para el Layout y Sidebar --- */
+
+.management-layout {
+    display: flex;
+    background-color: var(--color-background); /* Color de fondo Gentleman */
+  }
+  
+  .main-content {
+    flex-grow: 1; /* Ocupa todo el espacio restante */
+    width: 100%;
+    padding: 2rem;
+    transition: margin-left 0.35s ease-in-out; /* Animación para el contenido */
+  }
+  
+  .sidebar {
+    /* Estado colapsado por defecto */
+    width: 80px;
+    height: 100vh; /* Ocupa toda la altura */
+    position: sticky; /* Se queda fijo al hacer scroll */
+    top: 0;
+  
+    background-color: var(--color-white); /* Color blanco o blanquecino como pediste */
+    border-right: 1px solid var(--color-border);
+    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    
+    transition: width 0.35s ease-in-out; /* Animación para la expansión */
+  }
+  
+  /* --- EFECTO DE EXPANSIÓN AL PASAR EL RATÓN (HOVER) --- */
+  .sidebar:hover {
+    width: 240px; /* Ancho del sidebar expandido */
+    align-items: flex-start; /* Alineamos los items a la izquierda */
+  }
+  
+  /* --- Logo --- */
+  .sidebar-logo {
+    margin-bottom: 40px;
+  }
+  
+  .logo-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background-color: var(--color-text);
+    color: var(--color-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+  }
+  
+  /* --- Navegación y Enlaces --- */
+  .sidebar-nav {
+    flex-grow: 1; /* Empuja el footer hacia abajo */
+    width: 100%;
+  }
+  
+  .sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 12px 0;
+    margin-bottom: 8px;
+    
+    /* Centra el icono cuando el sidebar está colapsado */
+    justify-content: center;
+  
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #555; /* Un gris neutro para los iconos */
+  
+    /* Evita que el texto se vea cuando está colapsado */
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  
+  /* Al expandir, alineamos el contenido del link a la izquierda */
+  .sidebar:hover .sidebar-link {
+    justify-content: flex-start;
+    padding-left: 28px; /* Padding para alinear con el logo */
+  }
+  
+  .sidebar-link:hover {
+    color: var(--color-primary); /* Color Burdeos al pasar el ratón */
+  }
+  
+  .sidebar-link.active {
+    color: var(--color-primary);
+    font-weight: bold;
+    background-color: #f0f0f0; /* Fondo sutil para el elemento activo */
+  }
+  
+  .sidebar-icon {
+    font-size: 1.5rem; /* Tamaño del icono */
+    min-width: 24px; /* Ancho fijo para el icono */
+    text-align: center;
+  }
+  
+  .sidebar-text {
+    /* Oculto por defecto */
+    opacity: 0;
+    margin-left: 16px;
+    font-size: 1rem;
+    transition: opacity 0.2s ease-in-out;
+  }
+  
+  /* El texto aparece suavemente cuando se expande el sidebar */
+  .sidebar:hover .sidebar-text {
+    opacity: 1;
+    transition-delay: 0.1s; /* Pequeño retraso para que aparezca después de la expansión */
+  }
+  
+  /* --- Footer (Logout) --- */
+  .sidebar-footer {
+    width: 100%;
+  }

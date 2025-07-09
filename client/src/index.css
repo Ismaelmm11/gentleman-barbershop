@@ -32,3 +32,367 @@ h1, h2, h3 {
   font-family: var(--font-heading);
   color: var(--color-primary);
 }
+
+.management-layout {
+  display: flex;
+  background-color: var(--color-background);
+}
+
+.main-content {
+  flex-grow: 1;
+  width: 100%;
+  padding: 2rem;
+  transition: margin-left 0.35s ease-in-out;
+}
+
+.sidebar {
+  /* Estado colapsado por defecto */
+  width: 80px;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  background-color: var(--color-white);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  /* YA NO CENTRAMOS LOS ELEMENTOS AQUÍ */
+  padding: 20px 0;
+  transition: width 0.35s ease-in-out;
+  font-family: var(--font-heading);
+}
+
+.sidebar:hover {
+  width: 240px;
+}
+
+/* --- Logo --- */
+.sidebar-logo {
+  /* Le damos un padding para que el logo se alinee con los iconos */
+  padding: 0 20px;
+  margin-bottom: 40px;
+  width: 100%;
+  box-sizing: border-box; /* Importante para que el padding no sume al ancho */
+}
+
+.logo-placeholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background-color: var(--color-text);
+  color: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+}
+
+/* --- Navegación y Enlaces --- */
+.sidebar-nav {
+  flex-grow: 1;
+  width: 100%;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 12px 28px; /* Padding FIJO para alinear el icono en el centro de los 80px */
+  margin-bottom: 8px;
+  box-sizing: border-box;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #555;
+  overflow: hidden;
+  white-space: nowrap;
+  font-family: Inter;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+/* Ya no necesitamos cambiar el padding ni la justificación al hacer hover */
+
+.sidebar-link:hover {
+  color: var(--color-primary);
+}
+
+.sidebar-link.active {
+  color: var(--color-primary);
+  font-weight: bold;
+  text-decoration:underline;
+}
+
+.sidebar-icon {
+  font-size: 1.5rem;
+  width: 48px;   /* Ancho fijo para el icono */
+  height: 48px;  /* Alto fijo para el icono */
+  text-align: center;
+  transition: color 0.2s;
+}
+
+.sidebar-text {
+  /* Sigue oculto por defecto */
+  opacity: 0;
+  margin-left: 16px; /* Espacio entre icono y texto */
+  font-size: 1.25rem;
+  font-weight: 500;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* El texto sigue apareciendo suavemente al expandir */
+.sidebar:hover .sidebar-text {
+  opacity: 1;
+  transition-delay: 0.1s;
+}
+
+/* --- Footer (Logout) --- */
+.sidebar-footer {
+  width: 100%;
+}
+
+.sidebar-icon {
+  margin-left: -11px;
+  object-fit: contain; /* Asegura que la imagen se escale correctamente sin deformarse */
+}
+
+/* Opcional: añade un efecto sutil al pasar el ratón sobre el enlace */
+.sidebar-link:hover .sidebar-icon {
+  transform: scale(1.1);
+}
+
+
+/*//////////////////////////////////////////////*/
+/* --- Estilos para la página de Analíticas --- */
+/*//////////////////////////////////////////////*/
+
+
+.analytics-page {
+  padding: 2rem;
+}
+
+.analytics-title {
+  text-align: center;
+  font-size: 2rem;
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 2rem;
+}
+
+.top-controls-container {
+  display: flex;
+  flex-direction: column; /* <-- La clave: cambia la dirección a columna */
+  align-items: center;    /* Centra los elementos horizontalmente */
+  gap: 1rem;              /* Un espacio más pequeño, ahora que están en vertical */
+  margin-bottom: 2rem;
+}
+
+/* --- Estilos para PeriodSelector --- */
+.period-selector {
+  display: flex;
+  background-color: #e0e0e0;
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.period-selector__button {
+  background-color: transparent;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #555;
+  border-radius: 6px;
+  transition: all 0.2s ease-in-out;
+}
+
+.period-selector__button.active {
+  background-color: var(--color-white);
+  color: var(--color-primary);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* --- Estilos para DateNavigator --- */
+.date-navigator {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.date-navigator__arrow {
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  color: var(--color-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.date-navigator__arrow:hover {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.date-navigator__display {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--color-text);
+  min-width: 200px;
+  text-align: center;
+}
+
+/* --- Estilos para el DatePicker Modal --- */
+.datepicker-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.datepicker-container {
+  background-color: var(--color-white);
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+/* --- Personalización de react-day-picker para que encaje con el tema --- */
+.rdp {
+  --rdp-cell-size: 40px;
+  --rdp-accent-color: var(--color-primary); /* Color Burdeos para el día seleccionado */
+  --rdp-background-color: #e0e0e03b;
+  font-family: var(--font-body);
+}
+
+.rdp-head_cell {
+  font-weight: 600;
+  color: #555;
+}
+
+.rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
+  background-color: var(--color-background);
+}
+
+.rdp-footer-button {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--color-border);
+  font-weight: 600;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+/* Hacemos que la fecha en el navegador parezca un botón */
+.date-navigator__display {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.date-navigator__display:hover {
+  background-color: #0000000d;
+}
+
+/* --- Estilos para las vistas de Mes y Año --- */
+
+.month-year-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 columnas */
+  gap: 10px;
+  padding: 10px;
+  width: 280px; /* Un ancho fijo para que se vea bien */
+}
+
+.grid-button {
+  padding: 12px 8px;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.grid-button:hover {
+  background-color: var(--color-background);
+}
+
+.grid-button.active {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+/* Añade esto a tu CSS */
+.main-content-area {
+  display: flex;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+.left-sidebar { flex-shrink: 0; }
+.chart-area {
+  flex-grow: 1; /* Para que ocupe el espacio disponible */
+  height: 500px; /* <-- ¡ESTA LÍNEA ES CRUCIAL! Le damos una altura fija. */
+  position: relative; /* Buena práctica para los tooltips del gráfico */
+}
+.right-fab-controls { flex-shrink: 0; }
+.chart-placeholder, .loading-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 1.2rem;
+  color: #888;
+  border: 2px dashed var(--color-border);
+  border-radius: 8px;
+}
+
+.fab-controls-container {
+  position: relative;
+}
+.fab-main {
+  width: 56px; height: 56px; border-radius: 50%; background-color: var(--color-primary); color: white;
+  border: none; font-size: 1.5rem; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  display: flex; align-items: center; justify-content: center;
+}
+.fab-options {
+  display: flex; flex-direction: column; gap: 8px; position: absolute;
+  bottom: 64px; right: 0; transition: all 0.2s ease-out;
+  transform: translateY(10px); opacity: 0; pointer-events: none;
+}
+.fab-options.open {
+  transform: translateY(0); opacity: 1; pointer-events: all;
+}
+.fab-options button {
+  width: 48px; height: 48px; border-radius: 50%; background-color: var(--color-white);
+  border: 1px solid var(--color-border); font-size: 1.5rem; cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.fab-options button:disabled {
+  background-color: var(--color-secondary); cursor: default;
+}
+.fab-separator {
+  height: 1px; background-color: var(--color-border); margin: 4px 0;
+}

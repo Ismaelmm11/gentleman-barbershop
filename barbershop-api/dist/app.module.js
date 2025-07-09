@@ -21,6 +21,7 @@ const media_module_1 = require("./media/media.module");
 const brands_module_1 = require("./brands/brands.module");
 const categories_module_1 = require("./categories/categories.module");
 const products_module_1 = require("./products/products.module");
+const analytics_module_1 = require("./analytics/analytics.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -38,6 +39,7 @@ exports.AppModule = AppModule = __decorate([
             brands_module_1.BrandsModule,
             categories_module_1.CategoriesModule,
             products_module_1.ProductsModule,
+            analytics_module_1.AnalyticsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

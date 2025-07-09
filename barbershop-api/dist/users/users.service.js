@@ -27,9 +27,6 @@ let UsersService = class UsersService {
     }
     async create(createUserDto, creator) {
         const { tipo_perfil, username, password, fecha_nacimiento, ...restOfUserData } = createUserDto;
-        if (tipo_perfil === 'ADMIN') {
-            throw new common_1.BadRequestException('No es posible crear nuevos administradores.');
-        }
         if (tipo_perfil !== 'CLIENTE' && (!creator || creator.rol !== 'ADMIN')) {
             throw new common_1.UnauthorizedException('No tienes permisos para crear este tipo de usuario.');
         }

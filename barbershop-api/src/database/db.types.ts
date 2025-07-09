@@ -134,14 +134,37 @@ export interface OtpCodesTable {
 
 // --- Tipos para las Vistas ---
 
-export interface VistaDiariaBarbero {
-    fecha: Date;
-    id_barbero: number;
-    nombre_completo_barbero: string;
-    total_citas: number; // O BigInt dependiendo de la configuración de MySQL
-    ingresos_totales: number;
-    ticket_medio_por_cita: number;
-    productos_vendidos_en_citas: number; // O BigInt
+// Tipos para las nuevas vistas de analíticas
+
+export interface VAnaliticasDiariasProfesional {
+  fecha: string;
+  anio: number;
+  mes: number;
+  semana_del_anio: number;
+  profesional_id: number;
+  profesional_nombre: string;
+  profesional_tipo: 'BARBERO' | 'TATUADOR';
+  total_citas_dia: number;
+  ingresos_diarios: number;
+  ticket_promedio_dia: number;
+}
+
+export interface VAnaliticasDiariasServicio {
+  fecha: string;
+  servicio_id: number;
+  servicio_nombre: string;
+  veces_usado_dia: number;
+  ingresos_por_servicio_dia: number;
+}
+
+export interface VAnaliticasClientes {
+  id_cliente: number;
+  nombre_completo_cliente: string;
+  total_visitas: number;
+  gasto_total: number;
+  gasto_promedio_por_visita: number;
+  fecha_primera_visita: string;
+  fecha_ultima_visita: string;
 }
 
 
@@ -167,5 +190,8 @@ export interface DB {
   otp_codes: OtpCodesTable;
 
   // Vistas
-  VISTA_DIARIA_BARBERO: VistaDiariaBarbero;
+  // --- AÑADE ESTAS TRES LÍNEAS AL FINAL ---
+  v_analiticas_diarias_profesional: VAnaliticasDiariasProfesional;
+  v_analiticas_diarias_servicio: VAnaliticasDiariasServicio;
+  v_analiticas_clientes: VAnaliticasClientes;
 }

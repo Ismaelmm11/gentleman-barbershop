@@ -34,11 +34,11 @@ export class UsersService {
     // Separamos los datos del perfil de los datos del usuario.
     const { tipo_perfil, username, password, fecha_nacimiento, ...restOfUserData } = createUserDto;
 
-    if (tipo_perfil === 'ADMIN') {
-      throw new BadRequestException(
-        'No es posible crear nuevos administradores.',
-      );
-    }
+    // if (tipo_perfil === 'ADMIN') {
+    //   throw new BadRequestException(
+    //     'No es posible crear nuevos administradores.',
+    //   );
+    // }
     // REGLA DE ORO: Si el que crea NO es un ADMIN y está intentando crear un usuario
     // que NO sea CLIENTE, se le deniega el acceso.
     if (tipo_perfil !== 'CLIENTE' && (!creator || creator.rol !== 'ADMIN')) {

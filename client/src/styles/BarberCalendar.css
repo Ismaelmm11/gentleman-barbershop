@@ -1,8 +1,0 @@
-.fc-timegrid-slot-lane {
-    border-top-style: solid;
-    border-top-width: 2px;
-}
-
-.fc-timegrid-slot-minor {
-    border-top: 1px dotted var(--color-text);
-}

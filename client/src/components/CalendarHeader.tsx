@@ -34,7 +34,9 @@ export const CalendarHeader = ({ initialMinTime, initialMaxTime, onRefresh, curr
 
     return (
         <div className="custom-calendar-header">
+            <h1>CALENDARIO</h1>
             <div className="header-title-container">
+            
                 <div className="view-mode-selector">
                     <button
                         className={currentView === 'timeGridDay' ? 'active' : ''}
@@ -57,6 +59,7 @@ export const CalendarHeader = ({ initialMinTime, initialMaxTime, onRefresh, curr
                 </div>
                 <h2 className="header-title">Today</h2>
                 <div className="center-header">
+                    
                     <button className="nav-button" onClick={onPrev}>Anterior</button>
                     <div className="time-select-wrapper">
                         <select

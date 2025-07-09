@@ -5,6 +5,10 @@
   font-size: 1.1em;
 }
 
+h1 {
+  padding: 10px;
+}
+
 /* --- ESTILO PARA LA COLUMNA DEL DÍA DE HOY --- */
 .fc .fc-day-today {
   /* Un tono ligeramente más oscuro que el fondo para destacar la columna */
@@ -29,6 +33,11 @@
   justify-content: center;
   align-items: center;
 }
+/* 
+.fc-scroller{
+  overflow: hidden !important;
+} */
+
 
 /* --- ESTILOS PARA LA CABECERA DE DÍAS --- */
 
@@ -285,6 +294,8 @@
 .calendar-wrapper {
     position: relative; /* Clave para que la capa de carga se posicione correctamente dentro */
     min-height: 700px; /* Le damos una altura mínima para evitar que colapse */
+    background-color: #FAFAFA;
+    border-radius: 5%;
 }
 
 /* La capa semitransparente que cubre el calendario */

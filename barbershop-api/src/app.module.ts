@@ -13,6 +13,7 @@ import { MediaModule } from './media/media.module';
 import { BrandsModule } from './brands/brands.module';
 import { CategoriesModule } from './categories/categories.module';
 import { ProductsModule } from './products/products.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 
 @Module({
@@ -30,6 +31,7 @@ import { ProductsModule } from './products/products.module';
     BrandsModule,
     CategoriesModule,
     ProductsModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -3,10 +3,11 @@ import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
 import { useAuth } from './context/AuthContext';
-import { CalendarPage } from './pages/CalendarPage'; // 1. Importar la nueva página
-import { ProtectedRoute } from './routes/ProtectedRoute'; // 2. Importar la ruta protegida
+import { ProtectedRoute } from './routes/ProtectedRoute';
+// Aquí solo necesitas importar la página principal de gestión
+import { ManagementPage } from './pages/ManagementPage'; 
 
-// Estilos para la barra de navegación
+// Estilos para la barra de navegación (sin cambios)
 const navStyles = {
   nav: {
     padding: '15px 30px',
@@ -36,16 +37,16 @@ function App() {
 
   return (
     <BrowserRouter>
-      <nav style={navStyles.nav}>
-        <div>
-          <Link to="/" style={navStyles.logo}>Gentleman Barbershop</Link>
-        </div>
+      <nav style={navStyles.nav} className="border-b-4 border-red-500">
+            <div>
+                <Link to="/" style={navStyles.logo}>Gentleman Barbershop</Link>
+            </div>
         <div>
           <Link to="/" style={navStyles.link}>Inicio</Link>
           
-          {/* 3. Añadir el enlace al calendario si el rol es correcto */}
+          {/* El enlace a /gestion ya es correcto */}
           {isAuthenticated && user && ['ADMIN', 'BARBERO', 'TATUADOR'].includes(user.rol) && (
-            <Link to="/calendario" style={navStyles.link}>Calendario</Link>
+            <Link to="/gestion" style={navStyles.link}>Gestión</Link>
           )}
 
           {!isAuthenticated && <Link to="/login" style={navStyles.link}>Login</Link>}
@@ -55,16 +56,20 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
-        
-        {/* 4. Añadir la nueva ruta protegida */}
+
+        {/* --- CORRECCIÓN --- */}
+        {/* Esta es AHORA la ÚNICA ruta que necesitas para toda la sección */}
         <Route
-          path="/calendario"
+          path="/gestion"
           element={
             <ProtectedRoute allowedRoles={['ADMIN', 'BARBERO', 'TATUADOR']}>
-              <CalendarPage />
+              <ManagementPage />
             </ProtectedRoute>
           }
         />
+        
+        {/* Ya no necesitamos la ruta /calendario, por lo que la eliminamos */}
+        
       </Routes>
     </BrowserRouter>
   );

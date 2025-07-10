@@ -1,3 +1,4 @@
+//src/pages/CalendarPage.tsx
 import { BarberCalendar } from '../components/BarberCalendar'; // 1. Importamos el nuevo componente
 
 

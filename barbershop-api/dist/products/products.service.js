@@ -75,10 +75,24 @@ let ProductsService = class ProductsService {
         if (id_categoria) {
             queryBuilder = queryBuilder.where('id_categoria', '=', id_categoria);
         }
-        return await queryBuilder
+        const products = await queryBuilder
             .limit(limit)
             .offset((page - 1) * limit)
             .execute();
+        const productsWithMedia = await Promise.all(products.map(async (product) => {
+            const media = await this.db
+                .selectFrom('media')
+                .selectAll()
+                .where('id_producto', '=', product.id)
+                .execute();
+            return { ...product, media };
+        }));
+        return {
+            data: productsWithMedia,
+            total: products.length,
+            page,
+            limit,
+        };
     }
     async findOne(id) {
         const product = await this.db

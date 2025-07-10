@@ -93,10 +93,31 @@ export class ProductsService {
       queryBuilder = queryBuilder.where('id_categoria', '=', id_categoria);
     }
 
-    return await queryBuilder
+    const products = await queryBuilder
       .limit(limit)
       .offset((page - 1) * limit)
       .execute();
+
+    // --- ¡NUEVO CÓDIGO AQUÍ! ---
+    // Para cada producto, obtener sus medios asociados
+    const productsWithMedia = await Promise.all(
+      products.map(async (product) => {
+        const media = await this.db
+          .selectFrom('media')
+          .selectAll()
+          .where('id_producto', '=', product.id)
+          .execute();
+        return { ...product, media };
+      })
+    );
+    // --- FIN NUEVO CÓDIGO ---
+
+    return {
+      data: productsWithMedia, // Devolvemos los productos con sus medios
+      total: products.length, // Esto no es el total real, solo de la página. Para un total real necesitarías una consulta COUNT
+      page,
+      limit,
+    };
   }
 
   async findOne(id: number) {

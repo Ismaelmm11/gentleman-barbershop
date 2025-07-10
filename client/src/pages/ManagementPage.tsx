@@ -3,35 +3,28 @@ import { useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { CalendarPage } from './CalendarPage';
 import { AnalyticsByBarber } from './analytics/AnalyticsByBarber';
+import { StoreManagementPage } from './StoreManagementPage';
+import { UserManagementPanel } from './UserManegementPanel';
 
-// Componentes de relleno para las nuevas secciones
-const RecurringBreaksPage = () => <div style={{ padding: '40px' }}><h1>Gestión de Descansos Recurrentes</h1><p>Aquí irá el gestor de horarios semanales...</p></div>;
 
-
-export const ManagementPage = () => {
+export const ManagementPage: React.FC = () => {
+  // Estado para la sección activa, por defecto 'Calendario'
   const [activeSection, setActiveSection] = useState('Calendario');
 
-  const renderContent = () => {
-    switch (activeSection) {
-      case 'Calendario':
-        return <CalendarPage />;
-      case 'Análisis':
-        return <AnalyticsByBarber />;
-      case 'Descansos':
-        return <RecurringBreaksPage />;
-      default:
-        return <CalendarPage />;
-    }
+  const handleSectionChange = (section: string) => {
+    setActiveSection(section);
   };
 
   return (
     <div className="management-layout">
-      <Sidebar 
-        activeSection={activeSection}
-        onSectionChange={setActiveSection}
-      />
+      <Sidebar activeSection={activeSection} onSectionChange={handleSectionChange} />
       <main className="main-content">
-        {renderContent()}
+        {activeSection === 'Calendario' && <CalendarPage />}
+        {activeSection === 'Análisis' && <AnalyticsByBarber />}
+        {activeSection === 'Descansos' && <div>Página de Descansos (Pendiente de implementar)</div>}
+        {activeSection === 'Tienda' && <StoreManagementPage />}
+        {activeSection === 'Usuarios' && <UserManagementPanel />}  {/* <-- NUEVA SECCIÓN */}
+        {/* Aquí puedes añadir más secciones de gestión según las necesites */}
       </main>
     </div>
   );

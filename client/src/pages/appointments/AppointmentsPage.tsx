@@ -162,8 +162,8 @@ export const AppointmentsPage: React.FC = () => {
                 <div className="selection-panel success-panel">
                     <h2>¡Reserva Completada!</h2>
                     <p>{bookingSuccessMessage}</p>
-                    <button onClick={() => setCurrentPanel(1)} className="button-primary">
-                        Hacer otra reserva
+                    <button onClick={() => setCurrentPanel(1)} className="button-primary btn">
+                        <span>Hacer otra reserva</span>
                     </button>
                 </div>
             )}

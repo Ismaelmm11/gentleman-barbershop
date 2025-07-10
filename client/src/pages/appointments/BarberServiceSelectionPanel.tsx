@@ -98,8 +98,8 @@ export const BarberServiceSelectionPanel: React.FC<BarberServiceSelectionPanelPr
 
         {error && <p className="error-message">{error}</p>}
 
-        <button type="submit" className="button-primary">
-          Siguiente
+        <button type="submit" className="button-primary btn">
+          <span>Siguiente</span>
         </button>
       </form>
     </div>

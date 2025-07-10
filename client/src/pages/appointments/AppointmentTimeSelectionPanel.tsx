@@ -163,8 +163,8 @@ export const AppointmentTimeSelectionPanel: React.FC<AppointmentTimeSelectionPan
           <button type="button" onClick={onGoBack} className="button-secondary">
             Anterior
           </button>
-          <button type="submit" className="button-primary" disabled={!selectedDay || !selectedSlot}>
-            Siguiente
+          <button type="submit" className="button-primary btn" disabled={!selectedDay || !selectedSlot}>
+            <span>Siguiente</span>
           </button>
         </div>
       </form>

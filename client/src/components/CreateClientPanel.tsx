@@ -64,7 +64,7 @@ return (
                 </div>
 
                 <div className="panel-actions">
-                    <button type="submit" className="button-primary">Guardar Cliente</button>
+                    <button type="submit" className="button-primary btn"> <span>Guardar Cliente</span></button>
                     <button type="button" onClick={onClose} className="button-secondary">Cancelar</button>
                 </div>
             </form>

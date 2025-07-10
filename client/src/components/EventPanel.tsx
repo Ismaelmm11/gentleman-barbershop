@@ -153,11 +153,11 @@ export const EventPanel = ({ panelState, services, editingClientName, onClose, o
 
                 {/* BOTONES DE ACCIÓN */}
                 <div className="panel-actions">
-                    <button onClick={() => onSave(formData, formType)} className="button-primary">
-                        {panelState.mode === 'CREATE' ? 'Guardar' : 'Actualizar'}
+                    <button onClick={() => onSave(formData, formType)} className="button-primary btn">
+                        <span>{panelState.mode === 'CREATE' ? 'Guardar' : 'Actualizar'}</span>
                     </button>
                     {panelState.mode === 'EDIT' && (
-                        <button onClick={() => onDelete(formData.id)} className="button-danger">Eliminar</button>
+                        <span><button onClick={() => onDelete(formData.id)} className="button-danger">Eliminar</button></span>
                     )}
                     <button onClick={onClose} className="button-secondary">Cancelar</button>
                 </div>

@@ -100,3 +100,134 @@ export const getPublicBarbers = async () => {
     }
     return response.json();
 };
+
+// DTOs e Interfaces para el Frontend
+interface UserData {
+    nombre: string;
+    apellidos: string;
+    telefono: string;
+    fecha_nacimiento: string; // YYYY-MM-DD
+    username?: string;
+    password?: string;
+    tipo_perfil: 'ADMIN' | 'BARBERO' | 'TATUADOR' | 'CLIENTE';
+}
+
+interface UpdateUserData {
+    nombre?: string;
+    apellidos?: string;
+    telefono?: string;
+    fecha_nacimiento?: string;
+    username?: string | null; // username puede ser null si es cliente
+    password?: string; // Aunque no se actualizará por esta ruta
+}
+
+interface FindAllUsersQueryFrontend {
+    limit?: number;
+    page?: number;
+    searchTerm?: string;
+    rol?: 'ADMIN' | 'BARBERO' | 'TATUADOR' | 'CLIENTE';
+}
+
+/**
+ * Obtiene todos los usuarios con paginación, filtros de búsqueda y por rol.
+ * Accesible solo por ADMIN.
+ */
+export const getAllUsers = async (token: string, query: FindAllUsersQueryFrontend) => {
+    const params = new URLSearchParams();
+    if (query.limit) params.append('limit', String(query.limit));
+    if (query.page) params.append('page', String(query.page));
+    if (query.searchTerm) params.append('searchTerm', query.searchTerm);
+    if (query.rol) params.append('rol', query.rol);
+
+    const response = await fetch(`${API_URL}/users?${params.toString()}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al cargar usuarios.');
+    }
+    return response.json(); // Esperamos { data: [], meta: { total, page, limit, last_page } }
+};
+
+/**
+ * Crea un nuevo usuario. Solo ADMIN puede crear roles que no sean CLIENTE.
+ */
+export const createUser = async (token: string, userData: UserData) => {
+    const response = await fetch(`${API_URL}/users`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(userData),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al crear el usuario.');
+    }
+    return response.json();
+};
+
+/**
+ * Actualiza los datos personales de un usuario (no rol ni contraseña).
+ */
+export const updateUser = async (token: string, id: number, userData: UpdateUserData) => {
+    const response = await fetch(`${API_URL}/users/${id}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(userData),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al actualizar el usuario.');
+    }
+    return response.json();
+};
+
+/**
+ * Actualiza el rol de un usuario. Solo ADMIN.
+ */
+export const updateUserRole = async (token: string, userId: number, newRole: UserData['tipo_perfil']) => {
+    const response = await fetch(`${API_URL}/users/${userId}/profile`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ tipo_perfil: newRole }),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al actualizar el rol del usuario.');
+    }
+    return response.json();
+};
+
+/**
+ * Elimina un usuario.
+ */
+export const deleteUser = async (token: string, id: number) => {
+    const response = await fetch(`${API_URL}/users/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al eliminar el usuario.');
+    }
+    return response.json();
+};

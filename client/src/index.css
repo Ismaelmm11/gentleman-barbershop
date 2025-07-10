@@ -1,36 +1,55 @@
 /* src/index.css */
 
 /* 1. Importamos las fuentes desde Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Playfair+Display:wght@700&display=swap');
+/* Reemplazamos Montserrat por Inter */
+/* Reemplazamos Bangers por Playfair Display (aunque Playfair Display ya la tienes por defecto, aseguramos que esté con los pesos correctos) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap');
 
 /* 2. Definimos nuestra paleta de colores como variables CSS */
+/* Asegúrate de que tus variables de color originales estén aquí */
 :root {
-  --color-background: #F4F2EF; /* Fondo Principal */
-  --color-text: #2C2C2C;       /* Carbón (Texto) */
+  --color-background: #F4F2EF; /* Fondo Principal de la aplicación (que no es lo mismo que el crema del banner) */
+  --color-text: #2C2C2C;       /* Carbón (Texto principal) */
   --color-primary: #6D2E2C;    /* Burdeos Clásico */
   --color-secondary: #B89A6A;  /* Dorado Apagado */
-  --color-border: #EAEAEA;     /* Gris Suave */
+  --color-border: #EAEAEA;    /* Gris Suave */
   --color-white: #FFFFFF;
 
-  --font-heading: 'Playfair Display', serif;
-  --font-body: 'Inter', sans-serif;
+  --font-heading: 'Playfair Display', serif; /* Ya estaba así, perfecto */
+  --font-body: 'Inter', sans-serif;          /* Reemplazamos 'Montserrat' por 'Inter' */
+
+  /* Tus variables de color específicas de la HomePage */
+  --cream: #FFF1E0;
+  --light-sand: #F5E9D4;
+  --soft-beige: #FAF4E8;
+  --maroon: #7A3C3C;
+  --hover-maroon: #8D4A4A;
+  --gold: #D4B78F;
+  --main-text: #1A1A1A;
+  --secondary-text: #666666;
+  --error-red: #ef4444;
+  --success-green: #22c55e;
 }
 
 /* 3. Aplicamos los estilos base a toda la aplicación */
 body {
   margin: 0;
   padding: 0;
-  font-family: var(--font-body);
-  background-color: var(--color-background);
-  color: var(--color-text);
+  font-family: var(--font-body); /* Usará 'Inter' */
+  background-color: var(--color-background); /* O --cream si quieres que toda la app use el color del banner por defecto */
+  color: var(--color-text); /* Usará el color de texto general */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden; /* Mantenemos el overflow-x para evitar scroll horizontal indeseado */
+  font-weight: 300; /* Peso de fuente por defecto, que puede ser de Inter */
 }
 
 /* 4. Estilos base para los titulares */
 h1, h2, h3 {
-  font-family: var(--font-heading);
-  color: var(--color-primary);
+  font-family: var(--font-heading); /* Usará 'Playfair Display' */
+  color: var(--color-primary); /* Color de títulos general */
+  letter-spacing: 1px;
+  font-weight: 700;
 }
 
 .management-layout {
@@ -1258,3 +1277,2016 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   }
 }
 
+
+/* src/styles/HomePage.css */
+
+/* Estilos específicos de la HomePage.
+   Las variables CSS y los estilos globales básicos (body, h1, h2, h3, .accent-font, .container)
+   deben estar en index.css. */
+
+/* CSS de las nubes */
+.nube {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* CSS de los botones (ya deberían ser globales o ajustarse si necesitas variaciones) */
+/* Mantengo aquí las reglas de .btn y .ancho50 solo para contexto si no son globales */
+.btn {
+  display: inline-block;
+  background-color: var(--maroon); /* Usar variable CSS */
+  color: white;
+  padding: 12px 28px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-family: 'Montserrat', sans-serif; /* Asegúrate de importar esta fuente si no lo está */
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  font-size: 16px;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.ancho50 {
+  width: 50%;
+  align-self: center; /* Útil en flex o grid */
+  text-align: center;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  z-index: 1;
+}
+
+.btn:hover::before {
+  transform: translateY(0);
+}
+
+.btn span {
+  position: relative;
+  z-index: 2;
+  transition: color 0.3s ease;
+}
+
+.btn:hover span {
+  color: var(--maroon); /* Usar variable CSS */
+}
+
+.btn:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  transform: translateY(-3px);
+}
+
+
+/* CSS del banner */
+/* CSS del banner */
+.banner {
+  background-color: #2A2A2A; /* Color de fondo oscuro */
+  color: white;
+  padding: 80px 0; /* Mantenemos el padding vertical para el contenido */
+  position: relative; /* Cambiado a relative para posicionar el contenido dentro */
+  overflow: hidden;
+  /* Eliminar background-attachment: fixed; de aquí si lo tuvieras */
+  height: 70vh; /* Haz que el banner ocupe la altura completa de la ventana */
+  display: flex; /* Añadir flexbox para centrar contenido */
+  flex-direction: column;
+  align-items: center; /* Centrar verticalmente el banner-content */
+  justify-content: center; /* Centrar horizontalmente el banner-content */
+  text-align: center;
+}
+
+.banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url(banner/banner.jpg) center/cover;
+  opacity: 0.15;
+  /* Si quieres el efecto parallax de fondo fijo: */
+  background-attachment: fixed; /* <-- Esto hace que la imagen de fondo se fije */
+}
+
+.container-banner{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+
+.banner-content {
+  display: flex;
+  flex-direction: column; /* Cambiado a columna para apilar imagen y texto */
+  align-items: center; /* Centrar horizontalmente los elementos hijos */
+  justify-content: center; /* Centrar verticalmente (si hay espacio) */
+  text-align: center; /* Centrar el texto dentro del banner-text */
+  position: relative;
+  z-index: 1;
+  max-width: 900px; /* Limita el ancho del contenido para que no se extienda demasiado */
+  width: 90%; /* Ancho responsivo */
+  /* Eliminar 'flex-wrap: wrap;' de aquí si lo tuvieras, ya que ahora es column */
+}
+
+.banner-text {
+  width: 60%;
+}
+
+.banner-subtitle {
+  font-size: 24px;
+  margin-bottom: 15px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 300;
+}
+
+.banner-title {
+  font-family: var(--font-heading); /* Cambiado de 'Bangers' a 'Playfair Display' (a través de la variable) */
+  font-size: 54px;
+  line-height: 1.2;
+  margin-bottom: 30px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.banner-title span {
+  display: block;
+  position: relative;
+  text-align: center;
+}
+
+.banner-title span::after {
+  left: 25%;
+  transform: translateX(0%);
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 3px;
+  background-color: var(--maroon); /* Usar variable CSS */
+  transition: width 0.5s ease;
+}
+
+.banner:hover .banner-title span::after {
+  width: 100%;
+  transition-delay: 0.2s;
+}
+
+/* Sección de GIFs */
+.gifs-section {
+  background-color: var(--light-sand); /* Usar variable CSS */
+  padding: 80px 0;
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.gifs-container {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+}
+
+.gif-block {
+  width: 32%;
+  text-align: center;
+  padding: 30px 20px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.gif-block:hover {
+  transform: translateY(-8px);
+}
+
+.gif-block:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 70%;
+  background-color: var(--maroon); /* Usar variable CSS */
+  opacity: 0.5;
+}
+
+.gif-placeholder {
+  width: 100%;
+  height: 220px;
+  margin-bottom: 25px;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.gif-block:hover .gif-placeholder {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.gif-placeholder::before {
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  color: var(--maroon); /* Usar variable CSS */
+  font-weight: bold;
+}
+
+.gif-placeholder img { /* Añade un estilo para las imágenes de los gifs */
+  width: 100%;
+  height: 100%;
+  object-fit: scale-down; /* Asegura que el GIF cubra el área sin distorsionarse */
+  display: block; /* Elimina espacio extra si la imagen es inline */
+}
+
+.gif-caption {
+  font-family: var(--font-heading); /* Cambiado de 'Bangers' a 'Playfair Display' (a través de la variable) */
+  font-size: 26px;
+  margin-top: 20px;
+  letter-spacing: 1.5px;
+  position: relative;
+  display: inline-block;
+}
+
+.gif-caption::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background-color: var(--maroon); /* Usar variable CSS */
+  opacity: 0.7;
+}
+
+/* Sección de Servicios */
+.services-section {
+  background-color: var(--soft-beige); /* Usar variable CSS */
+  padding: 100px 0;
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.section-title {
+  text-align: center;
+  font-size: 42px;
+  margin-bottom: 60px;
+  position: relative;
+  color: var(--main-text); /* Usar variable CSS */
+}
+
+.section-title::after {
+  content: '';
+  display: block;
+  width: 100px;
+  height: 3px;
+  background-color: var(--maroon); /* Usar variable CSS */
+  margin: 20px auto 0;
+}
+
+.services-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.service-card {
+  width: 31%;
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.service-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background-color: var(--maroon); /* Usar variable CSS */
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.service-card:hover::before {
+  transform: scaleX(1);
+}
+
+.service-card-inner {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.service-image {
+  width: 100%;
+  height: 220px;
+  background-color: #ddd; /* Placeholder background */
+  position: relative;
+  overflow: hidden;
+}
+
+.service-image::before {
+  content: attr(data-service); /* Placeholder text for service name */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  color: var(--cream);
+  background-color: #0f04012d; /* Usar variable CSS */
+  font-weight: bold;
+}
+
+.service-content {
+  padding: 30px;
+  position: relative;
+}
+
+.service-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 5px;
+  background-color: var(--maroon); /* Usar variable CSS */
+  transition: width 0.3s ease;
+}
+
+.service-card:hover .service-content::before {
+  width: 100%;
+}
+
+.service-title {
+  font-size: 28px;
+  margin-bottom: 15px;
+  color: var(--main-text); /* Usar variable CSS */
+  position: relative;
+  padding-bottom: 12px;
+}
+
+.service-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 50px;
+  height: 2px;
+  background-color: var(--maroon); /* Usar variable CSS */
+}
+
+.service-description {
+  margin-bottom: 25px;
+  font-size: 16px;
+  color: var(--secondary-text); /* Usar variable CSS */
+}
+
+/* Sección de Bloques Informativos */
+.info-section {
+  background-color: var(--light-sand); /* Usar variable CSS */
+  padding: 100px 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.info-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: var(--maroon); /* Usar variable CSS */
+  opacity: 0.3;
+}
+
+.container {
+  width: 80%;
+}
+
+.info-blocks {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%; /* Asegurar que ocupe el ancho del container */
+}
+
+.info-block {
+  width: 70%; /* Ocupa el 70% del ancho del contenedor padre (info-blocks) */
+  margin-bottom: 40px;
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* Regla para alternar la imagen/texto en info-blocks */
+.info-block:nth-child(even) .block-content {
+  flex-direction: row-reverse; /* Invertir orden en bloques pares */
+}
+
+.info-block:hover {
+  transform: translateX(-15px); /* Efecto para bloques impares */
+  box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.info-block:nth-child(even):hover {
+  transform: translateX(15px); /* Efecto inverso para bloques pares */
+  box-shadow: -10px 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+
+.info-block::before {
+  content: '';
+  position: absolute;
+  left: 0; /* Por defecto a la izquierda */
+  top: 0;
+  height: 100%;
+  width: 5px;
+  background-color: var(--maroon); /* Usar variable CSS */
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.3s ease;
+}
+
+.info-block:nth-child(even)::before {
+  left: auto; /* Mover el pseudo-elemento a la derecha para bloques pares */
+  right: 0;
+  transform-origin: top; /* Ajustar origen de la transformación para el efecto */
+}
+
+.info-block:hover::before {
+  transform: scaleY(1);
+}
+
+
+.block-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.block-image {
+  width: 40%;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.block-image img {
+  width: 75%;
+  height: 75%;
+  border-radius: 10px;
+  height: auto;
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+.info-block:hover .block-image img {
+  transform: scale(1.05);
+}
+
+.block-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 60%;
+  padding: 40px;
+}
+
+.block-title {
+  font-family: var(--font-heading); /* Cambiado de 'Bangers' a 'Playfair Display' (a través de la variable) */
+  font-size: 32px;
+  margin-bottom: 20px;
+  color: var(--main-text);
+  letter-spacing: 1.5px;
+}
+
+.block-description {
+  margin-bottom: 25px;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--secondary-text); /* Usar variable CSS */
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.gallery-item {
+  width: 100%;
+  height: 120px;
+  background-color: #eee; /* Placeholder background */
+  position: relative;
+  overflow: hidden;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.gallery-item img{
+  width: 100%;
+  height: 100%;
+
+}
+
+.gallery-item:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+.gallery-item::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 14px;
+  color: var(--maroon); /* Usar variable CSS */
+  font-weight: 500;
+}
+
+/* CSS Animaciones (copiadas directamente, asegurar que .visible se aplique al final de la transición) */
+.invisible {
+  opacity: 0;
+  transition: opacity 0.5s ease, transform 0.5s ease; /* Transición por si quieres un fade-in */
+}
+
+.invisible.visible { /* Se renombra de .no a .visible para mayor claridad */
+  opacity: 1;
+}
+
+.animate {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.animate.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.delay-1 { transition-delay: 0.2s; }
+.delay-2 { transition-delay: 0.4s; }
+
+/* Media Queries para responsividad */
+@media (max-width: 992px) {
+  .banner {
+    padding: 60px 0; /* Ajustar padding para pantallas más pequeñas */
+  }
+  .banner-content {
+    flex-direction: column; /* Ya estaba así por los cambios, pero confirmo */
+    align-items: center;
+  }
+  .banner-image {
+    margin-bottom: 30px; /* Ajustar espacio */
+  }
+  .banner-title {
+    font-size: 42px; /* Ajustar tamaño de fuente */
+  }
+
+  .gifs-container {
+    flex-direction: column;
+  }
+  .gif-block {
+    width: 100%;
+    margin-bottom: 40px;
+    padding: 20px;
+  }
+  .gif-block:not(:last-child)::after {
+    display: none; /* Ocultar el separador vertical en móvil */
+  }
+
+  .services-container {
+    flex-direction: column; /* Apilar tarjetas de servicio en móvil */
+  }
+  .service-card {
+    width: 100%;
+    margin-bottom: 30px;
+  }
+
+  .info-block {
+    width: 100%; /* Ocupar todo el ancho en móviles */
+    margin-bottom: 30px;
+    transform: none !important; /* Anular transformaciones de hover para evitar problemas en móviles */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05); /* Mantener sombra por defecto */
+  }
+  .info-block:nth-child(even)::before,
+  .info-block::before {
+    transform: scaleY(1); /* Asegurar que la barra lateral esté visible siempre si quieres */
+    left: 0; /* Forzar a la izquierda en móvil */
+    right: auto;
+  }
+  .info-block:hover {
+    transform: none !important; /* Evitar efectos de hover en móviles */
+  }
+}
+
+@media (max-width: 768px) {
+  .banner {
+    padding: 40px 0; /* Más ajustes de padding */
+  }
+  .banner-title {
+    font-size: 36px;
+  }
+  .banner-subtitle {
+    font-size: 18px;
+  }
+  .section-title {
+    font-size: 36px;
+    margin-bottom: 40px;
+  }
+  .block-content {
+    flex-direction: column; /* Apilar imagen y texto en info-blocks */
+    
+  }
+  .block-image, .block-text {
+    width: 100%;
+    padding: 20px;
+  }
+  .block-text {
+    padding-top: 0; /* Eliminar padding superior extra para evitar doble espacio */
+  }
+
+  .block-title{
+    font-size: 1.25em;
+    text-align: center;
+  }
+
+  .block-description{
+    text-align: center;
+  }
+
+  
+
+  .info-section {
+    padding: 60px 0;
+  }
+  .gallery-grid {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 558px) {
+  .gallery-grid{
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
+.service-image[data-service="Micropigmentación"] {
+  background-image: url(img/micropig.jpg);
+  background-size: cover;
+  background-position: center;
+  color: var(--gold)
+}
+.service-image[data-service="Barbería"] {
+  background-image: url(img/barba.jpg);
+  background-size: cover;
+  background-position: center;
+  color: var(--gold)
+}
+.service-image[data-service="Tatuajes"] {
+  background-image: url(img/tatoos.jpg);
+  background-size: cover;
+  background-position: center;
+  color: var(--gold)
+}
+
+
+/* src/management/StoreManagementPage.css */
+
+.store-management-page {
+  padding: 2rem;
+  background-color: var(--color-background);
+  border-radius: 8px;
+}
+
+.management-title {
+  text-align: center;
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  margin-bottom: 2rem;
+  font-size: 2rem;
+}
+
+.tab-navigation {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.tab-button {
+  background-color: transparent;
+  border: none;
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text);
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s ease-in-out;
+}
+
+.tab-button:hover {
+  color: var(--color-primary);
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.tab-button.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+  font-weight: 700;
+}
+
+.tab-content {
+  /* Contenedor para el contenido de las pestañas */
+  padding-top: 1.5rem;
+}
+
+/* Estilos comunes para los paneles de gestión (marcas/categorías) */
+.management-panel {
+  background-color: var(--color-white);
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.management-panel h3 {
+  font-family: var(--font-heading);
+  color: var(--color-text);
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  text-align: center;
+}
+
+.control-buttons-container {
+  display: flex;
+  justify-content: flex-end; /* Alinear a la derecha */
+  margin-bottom: 1.5rem;
+}
+
+.control-buttons-container .button-primary {
+  width: auto; /* Ancho automático para botones de control */
+  padding: 0.75rem 1.25rem;
+  font-size: 1rem;
+  margin-top: 0; /* Anular margen superior del .button-primary general */
+}
+
+/* Estilos para tablas de datos */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+}
+
+.data-table th,
+.data-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+}
+
+.data-table th {
+  background-color: var(--color-background);
+  font-weight: 600;
+  color: var(--color-text);
+  text-transform: uppercase;
+  font-size: 0.9rem;
+}
+
+.data-table tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.data-table td img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+/* Acciones de tabla (botones de editar/eliminar) */
+.table-actions {
+  padding: 23px !important;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: var(--color-primary);
+  transition: color 0.2s;
+  padding: 5px; /* Para que sea más fácil hacer click */
+  border-radius: 4px; /* Pequeño redondeo */
+}
+
+.action-button:hover {
+  color: #5a2523; /* Tono más oscuro al pasar el ratón */
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.action-button.delete {
+  color: #d32f2f; /* Rojo para eliminar */
+}
+.action-button.delete:hover {
+  color: #a00;
+}
+
+
+/* Estilos para formularios de creación/edición */
+.creation-form {
+  margin-top: 2rem;
+  border-top: 1px solid var(--color-border);
+  padding-top: 2rem;
+}
+
+.creation-form .form-group {
+  margin-bottom: 1rem;
+}
+
+.creation-form .form-group label {
+  font-size: 1rem;
+}
+
+.creation-form .text-input {
+  padding: 0.65rem;
+  font-size: 0.95rem;
+}
+
+.form-buttons-container {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end; /* Alinear a la derecha */
+  margin-top: 2rem;
+}
+
+.form-buttons-container .button-primary,
+.form-buttons-container .button-secondary {
+  width: auto;
+  padding: 0.65rem 1.2rem;
+  font-size: 0.95rem;
+}
+
+/* Responsividad básica */
+@media (max-width: 768px) {
+  .management-title {
+    font-size: 1.8rem;
+  }
+  .tab-navigation {
+    flex-direction: column;
+  }
+  .tab-button {
+    width: 100%;
+    border-bottom: none;
+    border-top: 1px solid var(--color-border);
+  }
+  .tab-button.active {
+    border-bottom-color: transparent;
+    border-top-color: var(--color-primary);
+  }
+  .management-panel {
+    padding: 1.5rem;
+  }
+  .data-table th, .data-table td {
+    padding: 8px 10px;
+    font-size: 0.85rem;
+  }
+  .data-table td img {
+    width: 40px;
+    height: 40px;
+  }
+  .control-buttons-container, .form-buttons-container {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+
+.image-upload-widget {
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+  background-color: var(--color-background); /* Fondo suave */
+  border: 1px dashed var(--color-border); /* Borde punteado para indicar zona de subida */
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden; /* Para contener la previsualización */
+}
+
+.image-upload-widget label {
+  display: block;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 1rem;
+  font-size: 1.05rem;
+}
+
+.image-upload-widget input[type="file"] {
+  display: block; /* Para que ocupe su propia línea */
+  width: 100%; /* Ocupa el ancho completo */
+  max-width: 300px; /* Limita el ancho del input de archivo */
+  margin: 0 auto 1rem auto; /* Centra el input */
+  padding: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background-color: var(--color-white);
+  cursor: pointer;
+}
+
+.image-upload-widget input[type="file"]:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(109, 46, 44, 0.2);
+}
+
+/* Estilos del spinner de carga */
+.upload-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1rem;
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+.loader {
+  border: 4px solid #f3f3f3; /* Light grey */
+  border-top: 4px solid var(--color-primary); /* Blue */
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.image-preview-container {
+  margin-top: 1.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  max-width: 200px; /* Tamaño máximo para la previsualización */
+  max-height: 200px; /* Tamaño máximo para la previsualización */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.image-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Ajusta la imagen dentro del contenedor sin recortar */
+  display: block;
+}
+
+.remove-image-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: rgba(211, 47, 47, 0.8); /* Rojo semitransparente */
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  z-index: 10;
+  transition: background-color 0.2s;
+}
+
+.remove-image-button:hover {
+  background-color: #d32f2f;
+}
+
+.no-image-selected {
+  color: #888;
+  font-style: italic;
+  margin-top: 1rem;
+}
+
+/* Para ajustar el error-message si aparece en el widget */
+.image-upload-widget .error-message {
+    font-size: 0.85rem;
+    margin-top: 1rem;
+    margin-bottom: 0; /* Ajustar el margen inferior */
+    color: #d32f2f;
+}
+
+/* Estilos para la sección de medios en el formulario */
+.product-media-group {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px dashed var(--color-border); /* Separador visual */
+}
+
+.product-media-group label {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 1.5rem;
+  display: block; /* Para centrar si quieres el label del widget */
+  text-align: center;
+}
+
+.media-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* Cuadrícula de previsualizaciones */
+  gap: 15px; /* Espacio entre los elementos de media */
+  margin-top: 1.5rem;
+  padding: 10px;
+  background-color: var(--color-background); /* Fondo suave para la zona de medios */
+  border-radius: 8px;
+}
+
+.media-item {
+  position: relative;
+  width: 100%;
+  padding-top: 100%; /* Truco para hacer el contenedor cuadrado (1:1 aspect ratio) */
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  background-color: var(--color-white);
+  display: flex; /* Para centrar el contenido */
+  align-items: center;
+  justify-content: center;
+}
+
+.media-item img,
+.media-item video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ajusta la imagen/video para cubrir el contenedor */
+  display: block;
+}
+
+.media-item.principal {
+  border: 3px solid var(--color-primary); /* Borde distintivo para el medio principal */
+  box-shadow: 0 0 10px rgba(109, 46, 44, 0.5);
+}
+
+.remove-media-button,
+.set-principal-button {
+  position: absolute;
+  z-index: 5;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.remove-media-button {
+  top: 5px;
+  right: 5px;
+  background-color: rgba(211, 47, 47, 0.8); /* Rojo para eliminar */
+  color: white;
+}
+
+.remove-media-button:hover {
+  background-color: #d32f2f;
+  transform: scale(1.1);
+}
+
+.set-principal-button {
+  bottom: 5px;
+  left: 5px;
+  background-color: rgba(255, 204, 0, 0.8); /* Amarillo para principal */
+  color: #333;
+  font-size: 1.1rem; /* Estrella un poco más pequeña */
+}
+
+.set-principal-button:hover {
+  background-color: #ffcc00;
+  transform: scale(1.1);
+}
+
+.no-media-message {
+  text-align: center;
+  grid-column: 1 / -1; /* Ocupa todas las columnas */
+  color: #888;
+  font-style: italic;
+  padding: 20px;
+}
+
+/* src/pages/ProductCatalogPage.css */
+
+.product-catalog-page {
+  padding: 2rem;
+  max-width: 1200px; /* Ancho máximo para el catálogo */
+  margin: 2rem auto;
+  background-color: var(--color-white);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.catalog-title {
+  text-align: center;
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  margin-bottom: 2rem;
+  font-size: 2.5rem;
+  letter-spacing: 1.5px;
+}
+
+/* Filtros */
+.filters-container {
+  display: flex;
+  flex-wrap: wrap; /* Permitir que los filtros se envuelvan */
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 2.5rem;
+  padding: 1rem;
+  background-color: var(--color-background);
+  border-radius: 8px;
+}
+
+.filters-container .text-input,
+.filters-container .select-input {
+  flex: 1; /* Permite que los inputs crezcan */
+  min-width: 180px; /* Ancho mínimo antes de envolverse */
+  padding: 0.75rem;
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  font-size: 0.95rem;
+}
+
+.filters-container .button-secondary {
+  flex-grow: 0; /* No crece tanto */
+  padding: 0.75rem 1.25rem;
+  font-size: 0.95rem;
+  margin-top: 0; /* Anular margen */
+}
+
+/* Cuadrícula de productos */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* 3 por fila en pantallas grandes */
+  gap: 2.5rem; /* Espacio entre cards */
+  margin-bottom: 3rem;
+  justify-content: start;
+}
+
+.product-card {
+  max-width: 350px;
+  background-color: var(--color-white);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column; /* Apilar contenido */
+}
+
+.product-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.product-image-container {
+  width: 100%;
+  padding-top: 100%; /* Para hacer el contenedor cuadrado (1:1 ratio) */
+  position: relative;
+  overflow: hidden;
+  background-color: #f0f0f0; /* Fondo de placeholder */
+}
+
+.product-main-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ajustar imagen para cubrir */
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-main-image {
+  transform: scale(1.05);
+}
+
+.product-no-image {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #aaa;
+  font-style: italic;
+}
+
+.video-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 3rem;
+    overflow: hidden;
+}
+
+.video-placeholder video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.7; /* Para que el icono se vea bien */
+}
+
+.video-icon {
+    position: absolute;
+    z-index: 1; /* Para que el icono esté por encima del video */
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 50%;
+    padding: 0.5rem 0.8rem;
+    font-size: 1.5rem;
+}
+
+
+.product-info {
+  padding: 1.5rem;
+  text-align: center;
+  flex-grow: 1; /* Para que la info ocupe el espacio restante */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Espacia el contenido */
+}
+
+.product-name {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+  line-height: 1.3;
+}
+
+.product-price {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 1rem;
+}
+
+.product-info-btn {
+  width: 80%; /* Ancho del botón */
+  margin: 0 auto; /* Centrar botón */
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+}
+
+.no-products-message {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #888;
+  padding: 3rem;
+  background-color: var(--color-background);
+  border-radius: 8px;
+}
+
+/* Paginación */
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 3rem;
+  font-size: 1.1rem;
+  color: var(--color-text);
+}
+
+.pagination-button {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: 6px;
+  padding: 0.7rem 1.2rem;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.pagination-button:hover:not(:disabled) {
+  background-color: #5a2523;
+  transform: translateY(-2px);
+}
+
+.pagination-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Media Queries para responsividad */
+@media (max-width: 992px) {
+  .product-catalog-page {
+    padding: 1.5rem;
+  }
+  .product-grid {
+    grid-template-columns: 1fr; /* Una columna en móvil */
+    gap: 1.5rem;
+   justify-content: center; /* Mantener centrado en móvil */
+  }
+  .product-card {
+    max-width: unset; /* En móvil, la card puede ocupar todo el ancho */
+  }
+}
+
+@media (max-width: 768px) {
+  .product-catalog-page {
+    padding: 1rem;
+  }
+  .catalog-title {
+    font-size: 2rem;
+  }
+  .filters-container {
+    flex-direction: column;
+    padding: 0.75rem;
+  }
+  .filters-container .text-input,
+  .filters-container .select-input,
+  .filters-container .button-secondary {
+    min-width: unset;
+    width: 100%;
+  }
+  .product-grid {
+    grid-template-columns: 1fr; /* Una columna en móvil */
+    gap: 1.5rem;
+  }
+  .product-info-btn {
+    width: 100%;
+  }
+  .pagination-controls {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+/* src/components/ProductDetailModal.css */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7); /* Fondo oscuro semitransparente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Asegurar que esté por encima de todo */
+  backdrop-filter: blur(5px); /* Efecto de desenfoque */
+}
+
+.modal-content {
+  background-color: var(--color-white);
+  border-radius: 12px;
+  padding: 2.5rem;
+  position: relative;
+  max-width: 700px; /* Ancho máximo del modal */
+  width: 90%;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  animation: modal-fade-in 0.3s ease-out; /* Animación de entrada */
+  overflow-y: auto; /* Para permitir scroll si el contenido es largo */
+  max-height: 90vh; /* Limitar altura para que quepa en la pantalla */
+}
+
+@keyframes modal-fade-in {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-close-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.modal-close-button:hover {
+  color: var(--color-primary);
+  transform: rotate(90deg);
+}
+
+.product-detail-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.product-detail-header h2 {
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Carrusel de medios */
+.media-carousel {
+  position: relative;
+  width: 100%;
+  height: 350px; /* Altura fija para el carrusel */
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.carousel-media {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Ajusta la imagen/video para que se vea completo */
+  display: block;
+}
+
+.no-media-available {
+  color: #aaa;
+  font-style: italic;
+  font-size: 1.1rem;
+}
+
+.carousel-nav-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.carousel-nav-button.prev {
+  left: 10px;
+}
+
+.carousel-nav-button.next {
+  right: 10px;
+}
+
+.carousel-nav-button:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.carousel-dots {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.dot.active {
+  background-color: var(--color-primary); /* Punto activo en color primario */
+  transform: scale(1.2);
+}
+
+/* Información del producto en detalle */
+.product-detail-info p {
+  margin-bottom: 0.8rem;
+  font-size: 1.1rem;
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+.product-detail-info strong {
+  color: var(--color-primary);
+}
+
+.product-detail-description {
+  font-size: 1rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+  color: #555;
+}
+
+.product-detail-price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-align: right;
+  margin-top: 2rem;
+}
+
+/* Media Queries para responsividad del modal */
+@media (max-width: 768px) {
+  .modal-content {
+    padding: 1.5rem;
+    width: 95%; /* Más ancho en móviles */
+    max-height: 95vh;
+  }
+  .product-detail-header h2 {
+    font-size: 1.8rem;
+  }
+  .media-carousel {
+    height: 250px; /* Menor altura en móviles */
+  }
+  .product-detail-info p,
+  .product-detail-description {
+    font-size: 1rem;
+  }
+  .product-detail-price {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-content {
+    padding: 1rem;
+  }
+  .carousel-nav-button {
+    width: 30px;
+    height: 30px;
+    font-size: 1.2rem;
+  }
+}
+
+/* src/pages/LoginPage.css */
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 70px); /* Ajusta a la altura de la ventana menos la altura del nav */
+  padding: 20px;
+  background-color: var(--color-background); /* Fondo general de la página de login */
+  font-family: var(--font-body);
+}
+
+.login-form {
+  padding: 50px 40px; /* Más padding para un look más premium */
+  border-radius: 12px; /* Bordes más redondeados */
+  background-color: var(--color-white);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); /* Sombra más pronunciada */
+  width: 100%;
+  max-width: 420px; /* Un poco más ancho */
+  border: 1px solid var(--color-border); /* Borde sutil */
+  box-sizing: border-box; /* Asegura que padding no sume al ancho */
+}
+
+.login-title {
+  text-align: center;
+  margin-bottom: 35px; /* Más espacio debajo del título */
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  font-size: 2.2rem; /* Título más grande */
+  letter-spacing: 1px;
+}
+
+.input-group {
+  margin-bottom: 20px; /* Espacio entre grupos de input */
+}
+
+.login-label {
+  display: block;
+  margin-bottom: 8px; /* Espacio entre label y input */
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 1.05rem;
+}
+
+.login-input {
+  width: 100%;
+  padding: 12px 15px; /* Más padding para el input */
+  border: 1px solid var(--color-border);
+  border-radius: 8px; /* Bordes redondeados para inputs */
+  font-size: 1rem;
+  color: var(--color-text);
+  background-color: var(--color-white);
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.login-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(109, 46, 44, 0.3); /* Sombra al enfocar más vibrante */
+}
+
+.login-button {
+  /* Ya usa .button-primary, así que hereda muchos estilos.
+     Aquí solo ajustes específicos o sobrescrituras si es necesario. */
+  width: 100%; /* Asegura que el botón ocupe todo el ancho del formulario */
+  margin-top: 25px; /* Más espacio encima del botón */
+  padding: 14px 20px; /* Más padding para el botón */
+  font-size: 1.15rem; /* Fuente un poco más grande */
+}
+
+.login-error {
+  color: #d32f2f; /* Usar un rojo de error más específico */
+  text-align: center;
+  margin-top: 20px; /* Más espacio para el mensaje de error */
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+/* Media Queries para responsividad */
+@media (max-width: 600px) {
+  .login-form {
+    padding: 30px 20px;
+    margin: 0 10px; /* Pequeño margen en los lados en móviles */
+  }
+  .login-title {
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+  }
+  .login-button {
+    font-size: 1rem;
+    padding: 12px 15px;
+  }
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 2rem; /* Espacio superior para separar de la tabla */
+  margin-bottom: 2rem; /* Espacio inferior para separar del formulario */
+  font-size: 1.1rem;
+  color: var(--color-text);
+  background-color: var(--color-background); /* Fondo para la paginación */
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.pagination-button {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: 6px;
+  padding: 0.7rem 1.2rem;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.pagination-button:hover:not(:disabled) {
+  background-color: #5a2523; /* Tono más oscuro al pasar el ratón */
+  transform: translateY(-2px);
+}
+
+.pagination-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+  transform: none; /* Asegurar que no haya transform en disabled */
+}
+
+/* Puedes añadir estilos para el filtro de roles si quieres que se vea diferente al de productos */
+.filters-container select {
+  /* Por ejemplo, un ancho específico */
+  max-width: 200px;
+}
+
+.chat-icon {
+  position: fixed;
+  bottom: 20px;
+  left: 20px; /* ¡POSICIÓN INFERIOR IZQUIERDA! */
+  width: 70px; /* Un poco más grande */
+  height: 70px;
+  background-color: var(--color-primary); /* Color burdeos de Gentleman */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Sombra más suave y moderna */
+  z-index: 1000; /* Asegurar que esté por encima de todo */
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  border: 3px solid var(--color-white); /* Borde blanco para destacar */
+}
+
+.chat-icon:hover {
+  transform: translateY(-5px); /* Pequeño efecto de elevación */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.chat-icon-image {
+  width: 100%; /* Ajusta el tamaño del bigote/icono dentro de la bola */
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  filter: brightness(1.2); /* Aclarar un poco la imagen si es oscura */
+}
+
+
+/* Estilos para la ventana del chat */
+.chat-window {
+  position: fixed;
+  bottom: 100px; /* Un poco más arriba del icono */
+  left: 20px; /* Alineado con el icono */
+  width: 380px; /* Ancho cómodo para el chat */
+  height: 500px;
+  background-color: var(--color-white);
+  border-radius: 12px; /* Bordes más redondeados */
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2); /* Sombra más profunda */
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  overflow: hidden; /* Asegura que el contenido interno no se desborde */
+  font-family: var(--font-body);
+}
+
+.chat-header {
+  background-color: var(--color-primary); /* Color burdeos */
+  color: var(--color-white);
+  padding: 12px 15px; /* Más padding */
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-heading); /* Fuente para el título del header */
+}
+
+.chat-header h3 {
+  margin: 0;
+  font-size: 1.2rem; /* Tamaño de fuente para el título del chatbot */
+  color: inherit; /* Hereda el color blanco */
+}
+
+.chat-header .close-btn {
+  cursor: pointer;
+  font-size: 1.8rem; /* Botón de cerrar más grande */
+  color: var(--color-white);
+  transition: transform 0.2s;
+}
+
+.chat-header .close-btn:hover {
+  transform: rotate(90deg);
+}
+
+.chat-body {
+  flex: 1;
+  padding: 15px; /* Más padding interno */
+  overflow-y: auto;
+  background-color: var(--color-background); /* Fondo de los mensajes */
+  border-bottom: 1px solid var(--color-border); /* Separador */
+}
+
+/* Scrollbar de Gentleman (opcional) */
+.chat-body::-webkit-scrollbar {
+  width: 8px;
+}
+.chat-body::-webkit-scrollbar-track {
+  background: var(--color-background);
+  border-radius: 10px;
+}
+.chat-body::-webkit-scrollbar-thumb {
+  background: var(--color-secondary); /* Dorado apagado para el scrollbar */
+  border-radius: 10px;
+}
+.chat-body::-webkit-scrollbar-thumb:hover {
+  background: darken(var(--color-secondary), 10%);
+}
+
+
+.chat-message {
+  margin-bottom: 12px; /* Más espacio entre mensajes */
+  padding: 10px 12px; /* Más padding */
+  border-radius: 15px; /* Bordes más redondeados para las burbujas */
+  max-width: 85%; /* Un poco más de ancho */
+  word-wrap: break-word;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.chat-message.user {
+  background-color: var(--color-primary); /* Burbuja del usuario en burdeos */
+  color: var(--color-white);
+  margin-left: auto;
+  text-align: right;
+  border-bottom-right-radius: 4px; /* Esquina más "picuda" para el usuario */
+}
+
+.chat-message.bot {
+  background-color: var(--color-white); /* Burbuja del bot en blanco */
+  color: var(--color-text);
+  margin-right: auto;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Sombra suave para el bot */
+  border-bottom-left-radius: 4px; /* Esquina más "picuda" para el bot */
+}
+
+/* Estilos para el Markdown renderizado */
+.chat-message.bot h3 {
+  font-size: 1rem; /* Más pequeño para el chat */
+  margin: 8px 0 4px;
+  color: var(--color-primary); /* Color de título en Markdown */
+  font-family: var(--font-heading);
+}
+
+.chat-message.bot strong {
+  font-weight: 700;
+  color: var(--color-primary); /* Resaltar fuerte en el bot */
+}
+
+.chat-message.bot ul {
+  padding-left: 20px;
+  margin: 5px 0;
+  color: var(--color-text);
+}
+
+.chat-message.bot li {
+  list-style-type: disc;
+  margin-bottom: 3px;
+  color: inherit;
+}
+
+.chat-message.bot .typing-indicator {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.chat-message.bot .typing-indicator span {
+    font-size: 1.5rem;
+    line-height: 1;
+    animation: bounce 1.2s infinite;
+    opacity: 0.7;
+}
+
+.chat-message.bot .typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.chat-message.bot .typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+    0%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-5px);
+    }
+}
+
+
+.chat-footer {
+  display: flex;
+  padding: 10px 15px; /* Padding ajustado */
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-white);
+}
+
+.chat-footer input {
+  flex: 1;
+  padding: 10px 12px; /* Más padding para input */
+  border: 1px solid var(--color-border);
+  border-radius: 25px; /* Input redondeado */
+  outline: none;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  background-color: var(--color-background); /* Fondo suave */
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.chat-footer input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(109, 46, 44, 0.2);
+}
+
+.chat-footer button {
+  padding: 10px 20px; /* Más padding */
+  margin-left: 10px;
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: 25px; /* Botón redondeado */
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.chat-footer button:hover:not(:disabled) {
+  background-color: darken(var(--color-primary), 10%);
+  transform: translateY(-1px);
+}
+
+.chat-footer button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Media Queries para responsividad */
+@media (max-width: 600px) {
+  .chat-window {
+    width: 90vw; /* Ocupa casi todo el ancho de la ventana */
+    height: 70vh; /* Altura más adaptable */
+    bottom: 15px;
+    left: 5vw; /* Centrar un poco el chat */
+    right: 5vw;
+    margin: 0 auto;
+  }
+
+  .chat-icon {
+    bottom: 10px;
+    left: 10px;
+    width: 60px;
+    height: 60px;
+  }
+
+  .chat-header h3 {
+    font-size: 1rem;
+  }
+  .chat-header .close-btn {
+    font-size: 1.5rem;
+  }
+  .chat-message {
+    font-size: 0.9rem;
+    max-width: 90%;
+  }
+  .chat-footer input, .chat-footer button {
+    font-size: 0.9rem;
+    padding: 8px 10px;
+  }
+}

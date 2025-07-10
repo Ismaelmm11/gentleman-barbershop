@@ -26,13 +26,25 @@ export declare class ProductsService {
         id_categoria: number;
     }>;
     findAll(query: FindAllProductsQueryDto): Promise<{
-        nombre: string;
-        id: number;
-        descripcion: string;
-        precio: number;
-        id_marca: number;
-        id_categoria: number;
-    }[]>;
+        data: {
+            media: {
+                id: number;
+                tipo: "IMAGEN" | "VIDEO";
+                url: string;
+                es_principal: boolean;
+                id_producto: number;
+            }[];
+            nombre: string;
+            id: number;
+            descripcion: string;
+            precio: number;
+            id_marca: number;
+            id_categoria: number;
+        }[];
+        total: number;
+        page: number;
+        limit: number;
+    }>;
     findOne(id: number): Promise<{
         media: {
             id: number;

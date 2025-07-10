@@ -196,8 +196,8 @@ export const ClientInformationPanel: React.FC<ClientInformationPanelProps> = ({
                                     />
                                 </div>
                                 {newClientFormError && <p className="error-message">{newClientFormError}</p>}
-                                <button type="submit" className="button-primary" disabled={newClientLoading}>
-                                    {newClientLoading ? 'Solicitando...' : 'Solicitar Cita'}
+                                <button type="submit" className="button-primary btn" disabled={newClientLoading}>
+                                    <span>{newClientLoading ? 'Solicitando...' : 'Solicitar Cita'}</span>
                                 </button>
                             </form>
                         </div>
@@ -218,8 +218,8 @@ export const ClientInformationPanel: React.FC<ClientInformationPanelProps> = ({
                                     />
                                 </div>
                                 {returningClientFormError && <p className="error-message">{returningClientFormError}</p>}
-                                <button type="submit" className="button-primary" disabled={returningClientLoading}>
-                                    {returningClientLoading ? 'Solicitando...' : 'Solicitar Cita'}
+                                <button type="submit" className="button-primary btn" disabled={returningClientLoading}>
+                                    <span>{returningClientLoading ? 'Solicitando...' : 'Solicitar Cita'}</span>
                                 </button>
                             </form>
                         </div>
@@ -242,8 +242,8 @@ export const ClientInformationPanel: React.FC<ClientInformationPanelProps> = ({
                                 />
                             </div>
                             {otpError && <p className="error-message">{otpError}</p>}
-                            <button type="submit" className="button-primary" disabled={otpLoading}>
-                                {otpLoading ? 'Confirmando...' : 'Confirmar Cita'}
+                            <button type="submit" className=" button-primary btn" disabled={otpLoading}>
+                                <span>{otpLoading ? 'Confirmando...' : 'Confirmar Cita'}</span>
                             </button>
                         </form>
                     </div>

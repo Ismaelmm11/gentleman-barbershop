@@ -60,7 +60,7 @@ export const CalendarHeader = ({ initialMinTime, initialMaxTime, onRefresh, curr
                 <h2 className="header-title">Today</h2>
                 <div className="center-header">
                     
-                    <button className="nav-button" onClick={onPrev}>Anterior</button>
+                    <button className="nav-button btn" onClick={onPrev}><span>Ant.</span></button>
                     <div className="time-select-wrapper">
                         <select
                             className="time-select-camouflaged"
@@ -80,7 +80,7 @@ export const CalendarHeader = ({ initialMinTime, initialMaxTime, onRefresh, curr
                             {maxTimeOptions.map(time => <option key={`max-${time}`} value={time}>{time.substring(0, 5)}</option>)}
                         </select>
                     </div>
-                    <button className="nav-button" onClick={onNext}>Siguiente</button>
+                    <button className="nav-button btn" onClick={onNext}><span>Sig.</span></button>
                 </div>
             </div>
         </div>
